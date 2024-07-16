@@ -9,10 +9,11 @@ public class CameraSwitcher : MonoBehaviour
 
     private bool canRightClick = false;
     private bool isInTopDownView = false;
+    private bool isTransitioning = false;
+    private bool canUseInput = true;
 
     void Start()
     {
-        // Ensure only the main camera is active at the start
         mainCamera.enabled = true;
         topDownCamera.enabled = false;
         mainCamera.GetComponent<AudioListener>().enabled = true;
@@ -22,20 +23,20 @@ public class CameraSwitcher : MonoBehaviour
 
     public void SwitchToTopDownView()
     {
-        if (!isInTopDownView)
+        if (!isInTopDownView && !isTransitioning)
         {
             Debug.Log("Switching to top-down view...");
-            StartCoroutine(SmoothTransition(mainCamera, topDownCamera, true, true)); // Ease in
+            StartCoroutine(SmoothTransition(mainCamera, topDownCamera, true, true));
         }
     }
 
     public void SwitchToMainView()
     {
-        if (isInTopDownView)
+        if (isInTopDownView && !isTransitioning)
         {
             Debug.Log("Switching to main view...");
-            topDownCamera.enabled = false; // Disable the camera component immediately
-            StartCoroutine(SmoothTransition(topDownCamera, mainCamera, false, false)); // Ease out
+            topDownCamera.enabled = false;
+            StartCoroutine(SmoothTransition(topDownCamera, mainCamera, false, false));
         }
     }
 
@@ -49,16 +50,14 @@ public class CameraSwitcher : MonoBehaviour
         Vector3 endPosition = toCamera.transform.position;
         Quaternion endRotation = toCamera.transform.rotation;
 
-        // Enable the 'to' camera to set its initial position and rotation
         toCamera.transform.position = startPosition;
         toCamera.transform.rotation = startRotation;
         toCamera.enabled = true;
 
-        // Disable audio listener on the from camera
         fromCamera.GetComponent<AudioListener>().enabled = false;
 
-        // Disable right click during transition
-        canRightClick = false;
+        isTransitioning = true;
+        canUseInput = false;
 
         float elapsedTime = 0f;
         while (elapsedTime < transitionDuration)
@@ -66,7 +65,6 @@ public class CameraSwitcher : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = Mathf.Clamp01(elapsedTime / transitionDuration);
 
-            // Apply easing function
             float easedT = easeIn ? Mathf.SmoothStep(0, 1, t) : 1 - Mathf.SmoothStep(0, 1, 1 - t);
 
             toCamera.transform.position = Vector3.Lerp(startPosition, endPosition, easedT);
@@ -77,19 +75,33 @@ public class CameraSwitcher : MonoBehaviour
             yield return null;
         }
 
-        // Disable the 'from' camera and enable audio listener on the 'to' camera
         fromCamera.enabled = false;
         toCamera.GetComponent<AudioListener>().enabled = true;
 
         isInTopDownView = enableRightClick;
         canRightClick = enableRightClick;
+        isTransitioning = false;
         Debug.Log($"Switched camera view to {toCamera.name}.");
 
         if (!enableRightClick)
         {
-            // Ensure the top-down camera component is disabled when switching back to the main camera
             topDownCamera.enabled = false;
         }
+
+        ResetInputState();
+
+        StartCoroutine(EnableInputAfterDelay(0.7f));
+    }
+
+    private void ResetInputState()
+    {
+        Input.ResetInputAxes();
+    }
+
+    private IEnumerator EnableInputAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        canUseInput = true;
     }
 
     public bool CanRightClick()
@@ -100,5 +112,15 @@ public class CameraSwitcher : MonoBehaviour
     public bool IsInTopDownView()
     {
         return isInTopDownView;
+    }
+
+    public bool IsTransitioning()
+    {
+        return isTransitioning;
+    }
+
+    public bool CanUseInput()
+    {
+        return canUseInput;
     }
 }

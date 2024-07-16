@@ -7,18 +7,20 @@ public class CameraController : MonoBehaviour
     private float targetYRotation = -90f;
     private Quaternion targetRotation;
     private bool isRotating = false;
+    public CameraSwitcher cameraSwitcher;
 
     void Start()
     {
-        // Set initial rotation to -90 degrees
         targetYRotation = -90f;
         targetRotation = Quaternion.Euler(0, targetYRotation, 0);
         transform.rotation = targetRotation;
+
+        cameraSwitcher = FindObjectOfType<CameraSwitcher>();
     }
 
     void Update()
     {
-        if (!isRotating)
+        if (!isRotating && cameraSwitcher.CanUseInput())
         {
             if (Input.GetKeyDown(KeyCode.A))
             {
@@ -29,12 +31,10 @@ public class CameraController : MonoBehaviour
                 StartRotation(rotationAngle);
             }
         }
-        else
+        else if (isRotating)
         {
-            // Smoothly rotate to the target rotation
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
 
-            // Check if the rotation is close enough to the target
             if (Quaternion.Angle(transform.rotation, targetRotation) < 0.1f)
             {
                 transform.rotation = targetRotation;
