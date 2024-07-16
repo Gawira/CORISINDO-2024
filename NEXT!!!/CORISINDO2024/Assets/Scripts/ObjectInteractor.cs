@@ -255,7 +255,7 @@ public class ObjectInteractor : MonoBehaviour
         originalRotation = selectedObject.transform.rotation;
 
         Vector3 targetPosition = zoomInPosition.position;
-        Quaternion targetRotation = zoomInPosition.rotation;
+        Quaternion targetRotation = selectedObject.transform.rotation; // Maintain original rotation
 
         float elapsedTime = 0;
         while (elapsedTime < zoomDuration)
@@ -267,7 +267,7 @@ public class ObjectInteractor : MonoBehaviour
         }
 
         selectedObject.transform.position = targetPosition;
-        selectedObject.transform.rotation = targetRotation;
+        selectedObject.transform.rotation = targetRotation; // Maintain original rotation
         yield return new WaitForSeconds(0.4f); // Delay after animation
         isAnimating = false;
     }

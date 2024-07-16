@@ -367,7 +367,7 @@ GameObject:
   - component: {fileID: 20570580206482772}
   m_Layer: 0
   m_Name: TRAIN PASS CARD
-  m_TagString: Untagged
+  m_TagString: Document
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -380,8 +380,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4390186227210976165}
   serializedVersion: 2
-  m_LocalRotation: {x: 7.8504635e-18, y: -0.70710677, z: -7.850462e-18, w: 0.7071068}
-  m_LocalPosition: {x: 3.1974995, y: 1.754, z: -17.986}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.59, y: 0.7072034, z: 0.59064794}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -2073,7 +2073,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
 --- !u!54 &20570580206482772
