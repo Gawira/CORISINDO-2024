@@ -89815,6 +89815,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationAngle: 75
   rotationSpeed: 8
+  cameraSwitcher: {fileID: 0}
 --- !u!4 &1445261570
 Transform:
   m_ObjectHideFlags: 0
