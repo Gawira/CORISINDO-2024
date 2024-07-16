@@ -7,6 +7,11 @@ public class ObjectInteractor : MonoBehaviour
 
     void Update()
     {
+        if (!cameraSwitcher.CanUseInput())
+        {
+            return; // Disable all input during transition
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             if (!cameraSwitcher.IsInTopDownView())
@@ -30,11 +35,28 @@ public class ObjectInteractor : MonoBehaviour
                 cameraSwitcher.SwitchToMainView();
             }
         }
+
+        if (cameraSwitcher.CanUseInput() && !cameraSwitcher.IsInTopDownView())
+        {
+            // Handle A and D key presses for camera rotation
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                // Rotate camera left
+            }
+            else if (Input.GetKeyDown(KeyCode.D))
+            {
+                // Rotate camera right
+            }
+        }
     }
 
     void InteractWithObject(GameObject obj)
     {
-        // For now, we'll assume any click on the table switches the view
+        if (!cameraSwitcher.CanUseInput())
+        {
+            return; // Disable all input during transition
+        }
+
         if (obj.CompareTag("Workstation"))
         {
             Debug.Log("Interacting with workstation.");
