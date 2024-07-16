@@ -25,7 +25,7 @@ public class CameraSwitcher : MonoBehaviour
         if (!isInTopDownView)
         {
             Debug.Log("Switching to top-down view...");
-            StartCoroutine(SmoothTransition(mainCamera, topDownCamera, true));
+            StartCoroutine(SmoothTransition(mainCamera, topDownCamera, true, true)); // Ease in
         }
     }
 
@@ -35,11 +35,11 @@ public class CameraSwitcher : MonoBehaviour
         {
             Debug.Log("Switching to main view...");
             topDownCamera.enabled = false; // Disable the camera component immediately
-            StartCoroutine(SmoothTransition(topDownCamera, mainCamera, false));
+            StartCoroutine(SmoothTransition(topDownCamera, mainCamera, false, false)); // Ease out
         }
     }
 
-    private IEnumerator SmoothTransition(Camera fromCamera, Camera toCamera, bool enableRightClick)
+    private IEnumerator SmoothTransition(Camera fromCamera, Camera toCamera, bool enableRightClick, bool easeIn)
     {
         Debug.Log($"Starting smooth transition from {fromCamera.name} to {toCamera.name}...");
 
@@ -65,8 +65,12 @@ public class CameraSwitcher : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             float t = Mathf.Clamp01(elapsedTime / transitionDuration);
-            toCamera.transform.position = Vector3.Lerp(startPosition, endPosition, t);
-            toCamera.transform.rotation = Quaternion.Lerp(startRotation, endRotation, t);
+
+            // Apply easing function
+            float easedT = easeIn ? Mathf.SmoothStep(0, 1, t) : 1 - Mathf.SmoothStep(0, 1, 1 - t);
+
+            toCamera.transform.position = Vector3.Lerp(startPosition, endPosition, easedT);
+            toCamera.transform.rotation = Quaternion.Lerp(startRotation, endRotation, easedT);
 
             Debug.Log($"Interpolating - Position: {toCamera.transform.position}, Rotation: {toCamera.transform.rotation.eulerAngles}");
 
