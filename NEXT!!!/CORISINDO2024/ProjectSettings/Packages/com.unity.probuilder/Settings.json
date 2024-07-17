@@ -102,14 +102,11 @@
                 "value": "{\"m_Value\":false}"
             },
             {
-<<<<<<< Updated upstream
-=======
                 "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
                 "key": "editor.showEditorNotifications",
                 "value": "{\"m_Value\":false}"
             },
             {
->>>>>>> Stashed changes
                 "type": "UnityEngine.ProBuilder.SelectMode, Unity.ProBuilder, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "key": "editor.selectMode",
                 "value": "{\"m_Value\":1}"
@@ -152,15 +149,7 @@
             {
                 "type": "UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "key": "ShapeBuilder.LastSize",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                "value": "{\"m_Value\":{\"x\":1.0057311058044434,\"y\":0.41499173641204836,\"z\":0.9054317474365234}}"
-=======
-                "value": "{\"m_Value\":{\"x\":1.2819972038269044,\"y\":0.9762425422668457,\"z\":-0.8072056770324707}}"
->>>>>>> Stashed changes
-=======
-                "value": "{\"m_Value\":{\"x\":1.2819972038269044,\"y\":0.9762425422668457,\"z\":-0.8072056770324707}}"
->>>>>>> Stashed changes
+                "value": "{\"m_Value\":{\"x\":1.2584481239318848,\"y\":0.711378276348114,\"z\":-0.6511697769165039}}"
             },
             {
                 "type": "UnityEngine.Quaternion, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
@@ -216,17 +205,11 @@
                 "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
                 "key": "BevelEdges.size",
                 "value": "{\"m_Value\":0.20000000298023225}"
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
             },
             {
                 "type": "UnityEngine.ProBuilder.ExtrudeMethod, Unity.ProBuilder, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "key": "editor.extrudeMethod",
                 "value": "{\"m_Value\":2}"
->>>>>>> Stashed changes
             }
         ]
     }
