@@ -255,19 +255,23 @@ public class ObjectInteractor : MonoBehaviour
         originalRotation = selectedObject.transform.rotation;
 
         Vector3 targetPosition = zoomInPosition.position;
-        Quaternion targetRotation = selectedObject.transform.rotation; // Maintain original rotation
+
+        // Calculate the center of the object including all children
+        Vector3 objectCenter = GetObjectCenter(selectedObject);
+
+        Vector3 zoomOffset = selectedObject.transform.position - objectCenter;
 
         float elapsedTime = 0;
         while (elapsedTime < zoomDuration)
         {
-            selectedObject.transform.position = Vector3.Lerp(originalPosition, targetPosition, (elapsedTime / zoomDuration));
-            selectedObject.transform.rotation = Quaternion.Lerp(originalRotation, targetRotation, (elapsedTime / zoomDuration));
+            selectedObject.transform.position = Vector3.Lerp(originalPosition, targetPosition + zoomOffset, (elapsedTime / zoomDuration));
+            selectedObject.transform.rotation = Quaternion.Lerp(originalRotation, selectedObject.transform.rotation, (elapsedTime / zoomDuration));
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        selectedObject.transform.position = targetPosition;
-        selectedObject.transform.rotation = targetRotation; // Maintain original rotation
+        selectedObject.transform.position = targetPosition + zoomOffset;
+        selectedObject.transform.rotation = selectedObject.transform.rotation; // Maintain original rotation
         yield return new WaitForSeconds(0.4f); // Delay after animation
         isAnimating = false;
     }
@@ -302,5 +306,21 @@ public class ObjectInteractor : MonoBehaviour
 
         yield return new WaitForSeconds(0.4f); // Delay after animation
         isAnimating = false;
+    }
+
+    Vector3 GetObjectCenter(GameObject obj)
+    {
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0)
+        {
+            return obj.transform.position;
+        }
+
+        Bounds bounds = renderers[0].bounds;
+        foreach (Renderer renderer in renderers)
+        {
+            bounds.Encapsulate(renderer.bounds);
+        }
+        return bounds.center;
     }
 }
