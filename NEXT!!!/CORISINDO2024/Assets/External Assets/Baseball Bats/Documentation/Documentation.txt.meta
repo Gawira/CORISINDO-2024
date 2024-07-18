@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a20cc2c58c4027b4abdbf3938f0ff549
+timeCreated: 1507460613
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102171
+  packageName: "Baseball Bats \u2013 Pack"
+  packageVersion: 1.1
+  assetPath: Assets/Baseball Bats/Documentation/Documentation.txt
+  uploadId: 208247

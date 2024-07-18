@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: da46dea6d059fad40ac527527f99236c
+timeCreated: 1475514692
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73139
+  packageName: TV / arm mount
+  packageVersion: 1.0
+  assetPath: Assets/Assets_TVs/models/Materials/screen_off.mat
+  uploadId: 140508

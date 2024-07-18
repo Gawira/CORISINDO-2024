@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5ce8ba3fb3dfe964fa021a13bb3c28a7
+timeCreated: 1475514691
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73139
+  packageName: TV / arm mount
+  packageVersion: 1.0
+  assetPath: Assets/Assets_TVs/models/Materials/wall_mount-1.mat
+  uploadId: 140508
