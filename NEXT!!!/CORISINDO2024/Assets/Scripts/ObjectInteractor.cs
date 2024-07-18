@@ -4,26 +4,33 @@ using System.Collections;
 public class ObjectInteractor : MonoBehaviour
 {
     public CameraSwitcher cameraSwitcher;
-    public Camera playerCamera;  // Main camera
-    public Camera topDownCamera; // Top-down camera
-    public Transform zoomInPosition; // Transform for the zoomed-in position and rotation
-    public float zoomDuration = 0.5f; // Duration for the zoom-in and zoom-out animations
+    public Camera playerCamera;
+    public Camera topDownCamera;
+    public Transform zoomInPosition;
+    public Transform batEquipPosition; // Reference to the BatEquipPosition GameObject
+    public Transform batHandlerPosition; // Reference to the BatHandlerPosition GameObject
+    public float zoomDuration = 0.5f;
 
     private GameObject selectedObject;
     private Vector3 offset;
-    private float liftAmount = 0.1f; // Amount to lift the object on Y axis
+    private float liftAmount = 0.1f;
     private bool isDragging = false;
     private bool isZoomedIn = false;
+    private bool isEquipped = false;
     private Vector3 originalPosition;
     private Quaternion originalRotation;
+    private Vector3 originalScale; // Store original scale of selected object
+    private GameObject bat; // Reference to the currently equipped bat GameObject
+    private Vector3 batOriginalPosition;
+    private Quaternion batOriginalRotation;
+    private Vector3 batOriginalScale;
     private bool isAnimating = false;
 
     void Start()
     {
-        // Ensure cameras are assigned in the inspector
-        if (cameraSwitcher == null || playerCamera == null || topDownCamera == null)
+        if (cameraSwitcher == null || playerCamera == null || topDownCamera == null || batEquipPosition == null || batHandlerPosition == null)
         {
-            Debug.LogError("Cameras or CameraSwitcher not assigned in the inspector");
+            Debug.LogError("Cameras, CameraSwitcher, BatEquipPosition, or BatHandlerPosition not assigned in the inspector");
         }
     }
 
@@ -31,12 +38,11 @@ public class ObjectInteractor : MonoBehaviour
     {
         if (isAnimating)
         {
-            return; // Disable all input during transition and animation
+            return;
         }
 
         if (isZoomedIn)
         {
-            // Disable A and D key presses for camera rotation
             if (Input.GetKeyDown(KeyCode.Z))
             {
                 StartCoroutine(ZoomOutObject(false));
@@ -50,7 +56,6 @@ public class ObjectInteractor : MonoBehaviour
                 StartCoroutine(ZoomOutObject(false));
             }
 
-            // Check for left-click interactions while in zoomed-in state
             if (Input.GetMouseButtonDown(0))
             {
                 Ray ray = topDownCamera.ScreenPointToRay(Input.mousePosition);
@@ -65,32 +70,32 @@ public class ObjectInteractor : MonoBehaviour
                 }
             }
 
-            return; // Prevent left-click movement while zoomed in on the selected object
+            return;
         }
 
         if (!cameraSwitcher.CanUseInput())
         {
-            return; // Disable all input during camera transition
+            return;
         }
 
         Camera activeCamera = cameraSwitcher.IsInTopDownView() ? topDownCamera : playerCamera;
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !isEquipped)
         {
             Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
-            Debug.DrawRay(ray.origin, ray.direction * 100, Color.red, 2f); // Draw the ray for debugging
+            Debug.DrawRay(ray.origin, ray.direction * 100, Color.red, 2f);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
+                Debug.Log("Hit: " + hit.collider.gameObject.name);
                 if (cameraSwitcher.IsInTopDownView() && hit.collider.CompareTag("Document"))
                 {
                     if (selectedObject == hit.collider.gameObject)
                     {
-                        isDragging = true; // Allow dragging the selected object
-                        return; // Ignore if the clicked object is the same as the selected object
+                        isDragging = true;
+                        return;
                     }
                     if (selectedObject != null && selectedObject != hit.collider.gameObject)
                     {
-                        // Deselect the previously selected object if it is different from the new one
                         ImmediateDeselectFromZoom();
                     }
                     SelectObject(hit.collider.gameObject, hit.point);
@@ -99,6 +104,11 @@ public class ObjectInteractor : MonoBehaviour
                 else if (!cameraSwitcher.IsInTopDownView() && hit.collider.CompareTag("Workstation"))
                 {
                     cameraSwitcher.SwitchToTopDownView();
+                }
+                else if (hit.collider.CompareTag("Bat"))
+                {
+                    Debug.Log("Bat clicked!");
+                    EquipBat(hit.collider.gameObject);
                 }
             }
         }
@@ -110,10 +120,10 @@ public class ObjectInteractor : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            isDragging = false; // Stop dragging when the mouse button is released
+            isDragging = false;
         }
 
-        if (Input.GetMouseButtonDown(1)) // Right-click to deselect or zoom out and switch to main view
+        if (Input.GetMouseButtonDown(1))
         {
             if (cameraSwitcher.CanRightClick())
             {
@@ -127,9 +137,18 @@ public class ObjectInteractor : MonoBehaviour
                     cameraSwitcher.SwitchToMainView();
                 }
             }
+
+            Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                if (hit.collider.CompareTag("BatHandler"))
+                {
+                    UnequipBat();
+                }
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.X)) // Deselect the object with the X key
+        if (Input.GetKeyDown(KeyCode.X))
         {
             if (isZoomedIn)
             {
@@ -141,7 +160,7 @@ public class ObjectInteractor : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Z) && selectedObject != null) // Zoom in or out with the Z key
+        if (Input.GetKeyDown(KeyCode.Z) && selectedObject != null)
         {
             if (isZoomedIn)
             {
@@ -155,7 +174,6 @@ public class ObjectInteractor : MonoBehaviour
 
         if (cameraSwitcher.CanUseInput() && !cameraSwitcher.IsInTopDownView())
         {
-            // Handle A and D key presses for camera rotation
             if (Input.GetKeyDown(KeyCode.A))
             {
                 // Rotate camera left
@@ -171,23 +189,26 @@ public class ObjectInteractor : MonoBehaviour
     {
         if (selectedObject != null && selectedObject != obj)
         {
-            ImmediateDeselectFromZoom(); // Deselect the current object if another object is selected
+            ImmediateDeselectFromZoom();
         }
 
         selectedObject = obj;
         Rigidbody rb = selectedObject.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.isKinematic = true; // Set the object to kinematic
+            rb.isKinematic = true;
         }
 
-        // Move the object up by liftAmount units on the Y axis
         Vector3 position = selectedObject.transform.position;
         position.y += liftAmount;
         selectedObject.transform.position = position;
 
-        // Calculate offset
         offset = selectedObject.transform.position - hitPoint;
+
+        // Store original position, rotation, and scale of the selected object
+        originalPosition = selectedObject.transform.position;
+        originalRotation = selectedObject.transform.rotation;
+        originalScale = selectedObject.transform.localScale;
     }
 
     void MoveSelectedObject(Camera activeCamera)
@@ -210,15 +231,14 @@ public class ObjectInteractor : MonoBehaviour
             Rigidbody rb = selectedObject.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.isKinematic = false; // Set the object back to non-kinematic
+                rb.isKinematic = false;
             }
 
-            // Return the object to its original Y position minus the lift amount
             Vector3 position = selectedObject.transform.position;
             position.y -= liftAmount;
             selectedObject.transform.position = position;
 
-            selectedObject = null; // Clear the selected object
+            selectedObject = null;
         }
     }
 
@@ -228,11 +248,9 @@ public class ObjectInteractor : MonoBehaviour
         {
             isZoomedIn = false;
 
-            // Save the current position and rotation
             originalPosition = selectedObject.transform.position;
             originalRotation = selectedObject.transform.rotation;
 
-            // Drop the object from the zoomed-in state
             Vector3 position = selectedObject.transform.position;
             position.y -= liftAmount;
             selectedObject.transform.position = position;
@@ -240,10 +258,10 @@ public class ObjectInteractor : MonoBehaviour
             Rigidbody rb = selectedObject.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.isKinematic = false; // Set the object back to non-kinematic
+                rb.isKinematic = false;
             }
 
-            selectedObject = null; // Clear the selected object
+            selectedObject = null;
         }
     }
 
@@ -256,7 +274,6 @@ public class ObjectInteractor : MonoBehaviour
 
         Vector3 targetPosition = zoomInPosition.position;
 
-        // Calculate the center of the object including all children
         Vector3 objectCenter = GetObjectCenter(selectedObject);
 
         Vector3 zoomOffset = selectedObject.transform.position - objectCenter;
@@ -271,8 +288,8 @@ public class ObjectInteractor : MonoBehaviour
         }
 
         selectedObject.transform.position = targetPosition + zoomOffset;
-        selectedObject.transform.rotation = selectedObject.transform.rotation; // Maintain original rotation
-        yield return new WaitForSeconds(0.4f); // Delay after animation
+        selectedObject.transform.rotation = selectedObject.transform.rotation;
+        yield return new WaitForSeconds(0.4f);
         isAnimating = false;
     }
 
@@ -304,7 +321,7 @@ public class ObjectInteractor : MonoBehaviour
             selectedObject.transform.rotation = originalRotation;
         }
 
-        yield return new WaitForSeconds(0.4f); // Delay after animation
+        yield return new WaitForSeconds(0.4f);
         isAnimating = false;
     }
 
@@ -322,5 +339,55 @@ public class ObjectInteractor : MonoBehaviour
             bounds.Encapsulate(renderer.bounds);
         }
         return bounds.center;
+    }
+
+    void EquipBat(GameObject batObject)
+    {
+        if (isEquipped)
+        {
+            Debug.Log("Bat is already equipped.");
+            return;
+        }
+
+        isEquipped = true;
+
+        // Store the original position, rotation, and scale of the bat
+        batOriginalPosition = batObject.transform.position;
+        batOriginalRotation = batObject.transform.rotation;
+        batOriginalScale = batObject.transform.localScale;
+
+        // Parent the bat to the batEquipPosition
+        batObject.transform.SetParent(batEquipPosition);
+
+        // Set the local position, rotation, and scale of the bat to match the batEquipPosition
+        batObject.transform.localPosition = Vector3.zero;
+        batObject.transform.localRotation = Quaternion.identity;
+        batObject.transform.localScale = Vector3.one; // Ensure consistent scale
+
+        // Assign the batObject to the local variable bat
+        bat = batObject;
+
+        Debug.Log("Bat equipped. Scale: " + batObject.transform.localScale);
+    }
+
+    void UnequipBat()
+    {
+        if (!isEquipped)
+        {
+            Debug.Log("No bat is currently equipped.");
+            return;
+        }
+
+        isEquipped = false;
+
+        // Parent the bat back to the batHandlerPosition
+        bat.transform.SetParent(batHandlerPosition);
+
+        // Restore the original position, rotation, and scale of the bat
+        bat.transform.position = batOriginalPosition;
+        bat.transform.rotation = batOriginalRotation;
+        bat.transform.localScale = batOriginalScale; // Restore the original scale
+
+        Debug.Log("Bat unequipped. Scale: " + bat.transform.localScale);
     }
 }

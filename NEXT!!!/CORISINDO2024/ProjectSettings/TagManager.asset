@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Workstation
   - Document
+  - Bat
+  - BatHandler
   layers:
   - Default
   - TransparentFX
