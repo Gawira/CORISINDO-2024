@@ -10,6 +10,8 @@ public class ObjectInteractor : MonoBehaviour
     public Transform batEquipPosition; // Reference to the BatEquipPosition GameObject
     public Transform batHandlerPosition; // Reference to the BatHandlerPosition GameObject
     public float zoomDuration = 0.5f;
+    public float attackDuration = 0.5f; // Duration of the attack animation
+    public float equipDelay = 0.8f; // Delay before the user can attack after equipping
 
     private GameObject selectedObject;
     private Vector3 offset;
@@ -25,6 +27,7 @@ public class ObjectInteractor : MonoBehaviour
     private Quaternion batOriginalRotation;
     private Vector3 batOriginalScale;
     private bool isAnimating = false;
+    private bool canAttack = false; // Flag to check if the user can attack
 
     void Start()
     {
@@ -108,7 +111,7 @@ public class ObjectInteractor : MonoBehaviour
                 else if (hit.collider.CompareTag("Bat"))
                 {
                     Debug.Log("Bat clicked!");
-                    EquipBat(hit.collider.gameObject);
+                    StartCoroutine(EquipBat(hit.collider.gameObject));
                 }
             }
         }
@@ -182,6 +185,12 @@ public class ObjectInteractor : MonoBehaviour
             {
                 // Rotate camera right
             }
+        }
+
+        // Handle bat attack animation
+        if (Input.GetMouseButtonDown(0) && isEquipped && canAttack)
+        {
+            StartCoroutine(PerformBatAttack());
         }
     }
 
@@ -341,12 +350,12 @@ public class ObjectInteractor : MonoBehaviour
         return bounds.center;
     }
 
-    void EquipBat(GameObject batObject)
+    IEnumerator EquipBat(GameObject batObject)
     {
         if (isEquipped)
         {
             Debug.Log("Bat is already equipped.");
-            return;
+            yield break;
         }
 
         isEquipped = true;
@@ -368,6 +377,10 @@ public class ObjectInteractor : MonoBehaviour
         bat = batObject;
 
         Debug.Log("Bat equipped. Scale: " + batObject.transform.localScale);
+
+        // Delay before allowing the user to attack
+        yield return new WaitForSeconds(equipDelay);
+        canAttack = true;
     }
 
     void UnequipBat()
@@ -379,6 +392,7 @@ public class ObjectInteractor : MonoBehaviour
         }
 
         isEquipped = false;
+        canAttack = false; // Disable attacking when the bat is unequipped
 
         // Parent the bat back to the batHandlerPosition
         bat.transform.SetParent(batHandlerPosition);
@@ -390,4 +404,69 @@ public class ObjectInteractor : MonoBehaviour
 
         Debug.Log("Bat unequipped. Scale: " + bat.transform.localScale);
     }
+    IEnumerator PerformBatAttack()
+    {
+        isAnimating = true;
+
+        // Define the attack positions and rotations
+        Vector3 attackStartPos = bat.transform.localPosition;
+        Quaternion attackStartRot = bat.transform.localRotation;
+
+        // Adjusted pull-back position and rotation
+        Vector3 attackPullBackPos = new Vector3(attackStartPos.x, attackStartPos.y, attackStartPos.z - 0.3f);  // Pull back slightly on the Z axis
+        Quaternion attackPullBackRot = Quaternion.Euler(attackStartRot.eulerAngles.x - 30f, attackStartRot.eulerAngles.y, attackStartRot.eulerAngles.z);
+
+        // Adjusted attack end position and rotation for a forward swing
+        Vector3 attackEndPos = new Vector3(attackStartPos.x, attackStartPos.y, attackStartPos.z + 0.5f); // Swing forward on the Z axis
+        Quaternion attackEndRot = Quaternion.Euler(attackStartRot.eulerAngles.x + 60f, attackStartRot.eulerAngles.y, attackStartRot.eulerAngles.z);
+
+        float pullBackDuration = 0.1f; // Faster pull-back
+        float swingDuration = 0.2f; // Fast swing
+        float returnDuration = 0.2f; // Return to original position
+
+        // Pull-back phase
+        float elapsedTime = 0;
+        while (elapsedTime < pullBackDuration)
+        {
+            float t = elapsedTime / pullBackDuration;
+            bat.transform.localPosition = Vector3.Lerp(attackStartPos, attackPullBackPos, t);
+            bat.transform.localRotation = Quaternion.Lerp(attackStartRot, attackPullBackRot, t);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        bat.transform.localPosition = attackPullBackPos;
+        bat.transform.localRotation = attackPullBackRot;
+
+        // Swing phase
+        elapsedTime = 0;
+        while (elapsedTime < swingDuration)
+        {
+            float t = elapsedTime / swingDuration;
+            bat.transform.localPosition = Vector3.Lerp(attackPullBackPos, attackEndPos, t);
+            bat.transform.localRotation = Quaternion.Lerp(attackPullBackRot, attackEndRot, t);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        bat.transform.localPosition = attackEndPos;
+        bat.transform.localRotation = attackEndRot;
+
+        // Return to original position and rotation
+        elapsedTime = 0;
+        while (elapsedTime < returnDuration)
+        {
+            float t = elapsedTime / returnDuration;
+            bat.transform.localPosition = Vector3.Lerp(attackEndPos, attackStartPos, t);
+            bat.transform.localRotation = Quaternion.Lerp(attackEndRot, attackStartRot, t);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        bat.transform.localPosition = attackStartPos;
+        bat.transform.localRotation = attackStartRot;
+
+        isAnimating = false;
+    }
+
 }
