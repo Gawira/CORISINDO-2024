@@ -9,11 +9,14 @@ public class ObjectInteractor : MonoBehaviour
     public Transform zoomInPosition;
     public Transform batEquipPosition; // Reference to the BatEquipPosition GameObject
     public Transform batHandlerPosition; // Reference to the BatHandlerPosition GameObject
+    public Transform workstationTablePosition; // Reference to the Workstation Table Position
+    public Transform rightSideTablePosition; // Reference to the Right Side Table Position
     public float zoomDuration = 0.5f;
     public float attackDuration = 0.5f; // Duration of the attack animation
     public float equipDelay = 0.8f; // Delay before the user can attack after equipping
 
     private GameObject selectedObject;
+    private GameObject passportObject; // Reference to the passport object
     private Vector3 offset;
     private float liftAmount = 0.1f;
     private bool isDragging = false;
@@ -28,18 +31,29 @@ public class ObjectInteractor : MonoBehaviour
     private Vector3 batOriginalScale;
     private bool isAnimating = false;
     private bool canAttack = false; // Flag to check if the user can attack
+    private bool isCooldown = false; // Cooldown for spamming prevention
+
+    private int viewState = 0; // -1 for left view, 0 for main view, 1 for right view
+
 
     void Start()
     {
-        if (cameraSwitcher == null || playerCamera == null || topDownCamera == null || batEquipPosition == null || batHandlerPosition == null)
+        if (cameraSwitcher == null || playerCamera == null || topDownCamera == null || batEquipPosition == null || batHandlerPosition == null || workstationTablePosition == null || rightSideTablePosition == null)
         {
-            Debug.LogError("Cameras, CameraSwitcher, BatEquipPosition, or BatHandlerPosition not assigned in the inspector");
+            Debug.LogError("Cameras, CameraSwitcher, BatEquipPosition, BatHandlerPosition, WorkstationTablePosition, or RightSideTablePosition not assigned in the inspector");
+        }
+
+        // Find the passport object in the scene based on its layer
+        passportObject = FindObjectByLayer(LayerMask.NameToLayer("Passport"));
+        if (passportObject == null)
+        {
+            Debug.LogError("Passport object not found in the scene");
         }
     }
 
     void Update()
     {
-        if (isAnimating)
+        if (isAnimating || isCooldown)
         {
             return;
         }
@@ -172,18 +186,6 @@ public class ObjectInteractor : MonoBehaviour
             else
             {
                 StartCoroutine(ZoomInObject());
-            }
-        }
-
-        if (cameraSwitcher.CanUseInput() && !cameraSwitcher.IsInTopDownView())
-        {
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                // Rotate camera left
-            }
-            else if (Input.GetKeyDown(KeyCode.D))
-            {
-                // Rotate camera right
             }
         }
 
@@ -412,6 +414,7 @@ public class ObjectInteractor : MonoBehaviour
             return t < 0.5f ? 2 * t * t : -1 + (4 - 2 * t) * t;
         }
     }
+
     IEnumerator PerformBatAttack()
     {
         isAnimating = true;
@@ -475,4 +478,36 @@ public class ObjectInteractor : MonoBehaviour
 
         isAnimating = false;
     }
+
+    public void MovePassportToWorkstationTable()
+    {
+        if (passportObject != null)
+        {
+            passportObject.transform.position = workstationTablePosition.position;
+            passportObject.transform.rotation = Quaternion.Euler(0, 0, 0); // Reset Y rotation to 0
+        }
+    }
+
+    public void MovePassportToRightSideTable()
+    {
+        if (passportObject != null)
+        {
+            passportObject.transform.position = rightSideTablePosition.position;
+            passportObject.transform.rotation = Quaternion.Euler(0, 90, 0); // Set Y rotation to 90
+        }
+    }
+    private GameObject FindObjectByLayer(int layer)
+    {
+        GameObject[] objects = GameObject.FindObjectsOfType<GameObject>();
+        foreach (GameObject obj in objects)
+        {
+            if (obj.layer == layer)
+            {
+                return obj;
+            }
+        }
+        return null;
+    }
+
+
 }
