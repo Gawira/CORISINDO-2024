@@ -404,6 +404,14 @@ public class ObjectInteractor : MonoBehaviour
 
         Debug.Log("Bat unequipped. Scale: " + bat.transform.localScale);
     }
+
+    public class EasingFunctions
+    {
+        public static float EaseInOut(float t)
+        {
+            return t < 0.5f ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        }
+    }
     IEnumerator PerformBatAttack()
     {
         isAnimating = true;
@@ -414,53 +422,52 @@ public class ObjectInteractor : MonoBehaviour
 
         // Adjusted pull-back position and rotation
         Vector3 attackPullBackPos = new Vector3(attackStartPos.x, attackStartPos.y, attackStartPos.z - 0.3f);  // Pull back slightly on the Z axis
-        Quaternion attackPullBackRot = Quaternion.Euler(attackStartRot.eulerAngles.x - 30f, attackStartRot.eulerAngles.y, attackStartRot.eulerAngles.z);
+        Quaternion attackPullBackRot = Quaternion.Euler(attackStartRot.eulerAngles.x - 20f, attackStartRot.eulerAngles.y - 20f, attackStartRot.eulerAngles.z);
 
-        // Adjusted attack end position and rotation for a forward swing
+        // Adjusted attack end position and rotation for a forward and left swing
         Vector3 attackEndPos = new Vector3(attackStartPos.x, attackStartPos.y, attackStartPos.z + 0.5f); // Swing forward on the Z axis
-        Quaternion attackEndRot = Quaternion.Euler(attackStartRot.eulerAngles.x + 60f, attackStartRot.eulerAngles.y, attackStartRot.eulerAngles.z);
+        Quaternion attackEndRot = Quaternion.Euler(attackStartRot.eulerAngles.x + 80f, attackStartRot.eulerAngles.y - 40f, attackStartRot.eulerAngles.z);
 
-        float pullBackDuration = 0.1f; // Faster pull-back
-        float swingDuration = 0.2f; // Fast swing
-        float returnDuration = 0.2f; // Return to original position
+        float pullBackDuration = 0.05f; // Faster pull-back
+        float swingDuration = 0.1f; // Fast swing
+        float returnDuration = 0.1f; // Return to original position
+
+        int steps = 40; // Increase the number of steps for smoother animation
 
         // Pull-back phase
-        float elapsedTime = 0;
-        while (elapsedTime < pullBackDuration)
+        for (int i = 0; i < steps; i++)
         {
-            float t = elapsedTime / pullBackDuration;
-            bat.transform.localPosition = Vector3.Lerp(attackStartPos, attackPullBackPos, t);
-            bat.transform.localRotation = Quaternion.Lerp(attackStartRot, attackPullBackRot, t);
-            elapsedTime += Time.deltaTime;
-            yield return null;
+            float t = (float)i / steps;
+            float easedT = EasingFunctions.EaseInOut(t);
+            bat.transform.localPosition = Vector3.Lerp(attackStartPos, attackPullBackPos, easedT);
+            bat.transform.localRotation = Quaternion.Lerp(attackStartRot, attackPullBackRot, easedT);
+            yield return null; // Wait for the next frame
         }
 
         bat.transform.localPosition = attackPullBackPos;
         bat.transform.localRotation = attackPullBackRot;
 
         // Swing phase
-        elapsedTime = 0;
-        while (elapsedTime < swingDuration)
+        for (int i = 0; i < steps; i++)
         {
-            float t = elapsedTime / swingDuration;
-            bat.transform.localPosition = Vector3.Lerp(attackPullBackPos, attackEndPos, t);
-            bat.transform.localRotation = Quaternion.Lerp(attackPullBackRot, attackEndRot, t);
-            elapsedTime += Time.deltaTime;
-            yield return null;
+            float t = (float)i / steps;
+            float easedT = EasingFunctions.EaseInOut(t);
+            bat.transform.localPosition = Vector3.Lerp(attackPullBackPos, attackEndPos, easedT);
+            bat.transform.localRotation = Quaternion.Lerp(attackPullBackRot, attackEndRot, easedT);
+            yield return null; // Wait for the next frame
         }
 
         bat.transform.localPosition = attackEndPos;
         bat.transform.localRotation = attackEndRot;
 
         // Return to original position and rotation
-        elapsedTime = 0;
-        while (elapsedTime < returnDuration)
+        for (int i = 0; i < steps; i++)
         {
-            float t = elapsedTime / returnDuration;
-            bat.transform.localPosition = Vector3.Lerp(attackEndPos, attackStartPos, t);
-            bat.transform.localRotation = Quaternion.Lerp(attackEndRot, attackStartRot, t);
-            elapsedTime += Time.deltaTime;
-            yield return null;
+            float t = (float)i / steps;
+            float easedT = EasingFunctions.EaseInOut(t);
+            bat.transform.localPosition = Vector3.Lerp(attackEndPos, attackStartPos, easedT);
+            bat.transform.localRotation = Quaternion.Lerp(attackEndRot, attackStartRot, easedT);
+            yield return null; // Wait for the next frame
         }
 
         bat.transform.localPosition = attackStartPos;
@@ -468,5 +475,4 @@ public class ObjectInteractor : MonoBehaviour
 
         isAnimating = false;
     }
-
 }
