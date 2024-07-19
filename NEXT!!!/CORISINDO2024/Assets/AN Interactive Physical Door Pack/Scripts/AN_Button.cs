@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class AN_Button : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class AN_Button : MonoBehaviour
     [Tooltip("The door for remote control")]
     public AN_DoorScript DoorObject;
     [Space]
-    [Tooltip("Any object for ramp/elevator baheviour")]
+    [Tooltip("Any object for ramp/elevator behaviour")]
     public Transform RampObject;
     [Tooltip("Door can be opened")]
     public bool CanOpen = true;
@@ -24,84 +25,119 @@ public class AN_Button : MonoBehaviour
     [Space]
     [Tooltip("True for rotation by X local rotation by valve")]
     public bool xRotation = true;
-    [Tooltip("True for vertical movenment by valve (if xRotation is false)")]
+    [Tooltip("True for vertical movement by valve (if xRotation is false)")]
     public bool yPosition = false;
     public float max = 90f, min = 0f, speed = 5f;
     bool valveBool = true;
     float current, startYPosition;
     Quaternion startQuat, rampQuat;
 
-    Animator anim;
+    public Light pointLight; // Reference to the light object
+    public Color greenLightColor = Color.green;
+    public Color redLightColor = Color.red;
+    public Transform stampMachine; // Reference to the STAMP MACHINE
+    public Vector3 stampEndPosition; // End position for the STAMP MACHINE
+    public float stampSpeed = 0.1f; // Speed of the STAMP MACHINE movement
 
-    // NearView()
-    float distance;
-    float angleView;
-    Vector3 direction;
+    Animator anim;
+    private static bool isCooldown = false; // Static cooldown flag for both levers
 
     void Start()
     {
         anim = GetComponent<Animator>();
-        startYPosition = RampObject.position.y;
+        if (RampObject != null)
+        {
+            startYPosition = RampObject.position.y;
+            rampQuat = RampObject.rotation;
+        }
         startQuat = transform.rotation;
-        rampQuat = RampObject.rotation;
     }
 
     void Update()
     {
-        if (!Locked)
+        if (!Locked && !isCooldown)
         {
-            if (Input.GetKeyDown(KeyCode.E) && !isValve &&  NearView()) // 1.lever and 2.button
+            if (Input.GetMouseButtonDown(0)) // Lever and button interaction with left-click
             {
-                if (isLever) // animations
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hit))
                 {
-                    anim.SetBool("LeverUp", true);  
+                    AN_Button button = hit.collider.GetComponent<AN_Button>();
+                    if (button != null && button == this) // Check if the clicked object is this lever/button
+                    {
+                        if (isLever) // animations
+                        {
+                            anim.SetBool("LeverUp", true);
+                            HandleLeverPull(); // Handle lever pull logic
+                        }
+                        else
+                        {
+                            anim.SetTrigger("ButtonPress");
+                        }
+
+                        StartCoroutine(LeverCooldown()); // Start the cooldown
+                    }
                 }
-                else anim.SetTrigger("ButtonPress");
             }
-            // else if (isValve && RampObject != null) // 3.valve
-            // {
-            //     // changing value in script
-            //     if (Input.GetKey(KeyCode.E) && NearView())
-            //     {
-            //         if (valveBool)
-            //         {
-            //             if (!isOpened && CanOpen && current < max) current += speed * Time.deltaTime;
-            //             if (isOpened && CanClose && current > min) current -= speed * Time.deltaTime;
-
-            //             if (current >= max)
-            //             {
-            //                 isOpened = true;
-            //                 valveBool = false;
-            //             }
-            //             else if (current <= min)
-            //             {
-            //                 isOpened = false;
-            //                 valveBool = false;
-            //             }
-            //         }
-
-            //     }
-            //     else
-            //     {
-            //         if (!isOpened && current > min) current -= speed * Time.deltaTime;
-            //         if (isOpened && current < max) current += speed * Time.deltaTime;
-            //         valveBool = true;
-            //     }
-
-            //     // using value on object
-            //     transform.rotation = startQuat * Quaternion.Euler(0f, 0f, current * ValveSpeed);
-            //     if (xRotation) RampObject.rotation = rampQuat * Quaternion.Euler(current, 0f, 0f); // I have a doubt in working correctly
-            //     else if (yPosition) RampObject.position = new Vector3(RampObject.position.x, startYPosition + current, RampObject.position.z);
-            // }
         }
     }
 
-    bool NearView() // it is true if you near interactive object
+    void HandleLeverPull()
     {
-        distance = Vector3.Distance(transform.position, Camera.main.transform.position);
-        direction = transform.position - Camera.main.transform.position;
-        angleView = Vector3.Angle(Camera.main.transform.forward, direction);
-        if (angleView < 45f && distance < 2f) return true;
-        else return false;
+        if (pointLight != null)
+        {
+            if (gameObject.name.Contains("Green")) // Assuming the lever names contain "Green" or "Red"
+            {
+                StartCoroutine(ChangeLightColor(greenLightColor));
+            }
+            else if (gameObject.name.Contains("Red"))
+            {
+                StartCoroutine(ChangeLightColor(redLightColor));
+            }
+        }
+
+        if (stampMachine != null)
+        {
+            StartCoroutine(MoveStampMachine());
+        }
+    }
+
+    IEnumerator ChangeLightColor(Color newColor)
+    {
+        Color originalColor = pointLight.color;
+        pointLight.color = newColor;
+        yield return new WaitForSeconds(2.5f); // Light color duration
+        pointLight.color = originalColor;
+    }
+
+    IEnumerator MoveStampMachine()
+    {
+        Vector3 startPosition = stampMachine.position;
+        float elapsedTime = 0f;
+        while (elapsedTime < stampSpeed)
+        {
+            stampMachine.position = Vector3.Lerp(startPosition, stampEndPosition, (elapsedTime / stampSpeed));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        stampMachine.position = stampEndPosition;
+
+        yield return new WaitForSeconds(1.5f); // Delay before returning to original position
+
+        elapsedTime = 0f;
+        while (elapsedTime < stampSpeed)
+        {
+            stampMachine.position = Vector3.Lerp(stampEndPosition, startPosition, (elapsedTime / stampSpeed));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        stampMachine.position = startPosition;
+    }
+
+    IEnumerator LeverCooldown()
+    {
+        isCooldown = true;
+        yield return new WaitForSeconds(5f); // 5 seconds delay
+        isCooldown = false;
     }
 }
