@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Workstation
+  - Document
+  - Bat
+  - BatHandler
   layers:
   - Default
   - TransparentFX
@@ -12,7 +15,7 @@ TagManager:
   - PostProcessing
   - Water
   - UI
-  - 
+  - Passport
   - 
   - 
   - 
