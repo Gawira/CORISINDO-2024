@@ -1,0 +1,58 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class RobotController : MonoBehaviour
+{
+    public Animator animator;
+    public Transform targetPoint;
+    public float walkSpeed = 2f;
+    private bool isWalking = false;
+
+    private void Start()
+    {
+        StartCoroutine(PerformActions());
+    }
+
+    private IEnumerator PerformActions()
+    {
+        // Start walking
+        animator.SetBool("Walk", true);
+        isWalking = true;
+
+        // Move to the target point on the Z axis
+        yield return MoveToPosition(new Vector3(targetPoint.position.x, transform.position.y, targetPoint.position.z));
+
+        // Trigger the LookRight animation and rotate 90 degrees to the right
+        animator.SetBool("Walk", false);
+        yield return RotateToAngle(90f);
+    
+        // Trigger the giving animation
+        animator.SetTrigger("Giving");
+
+        // Wait for the giving animation to finish
+        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
+        // Switch to idle animation
+        animator.SetBool("Walk", false);
+    }
+
+    private IEnumerator MoveToPosition(Vector3 target)
+    {
+        while (Vector3.Distance(transform.position, target) > 0.1f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, target, walkSpeed * Time.deltaTime);
+            yield return null;
+        }
+    }
+
+    private IEnumerator RotateToAngle(float angle)
+    {
+        Quaternion targetRotation = Quaternion.Euler(0, transform.eulerAngles.y + angle, 0);
+        while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, walkSpeed * Time.deltaTime);
+            yield return null;
+        }
+    }
+}
