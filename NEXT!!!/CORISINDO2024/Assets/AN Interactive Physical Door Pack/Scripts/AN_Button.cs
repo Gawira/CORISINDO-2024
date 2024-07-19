@@ -39,6 +39,9 @@ public class AN_Button : MonoBehaviour
     public Vector3 stampEndPosition; // End position for the STAMP MACHINE
     public float stampSpeed = 0.1f; // Speed of the STAMP MACHINE movement
 
+    public delegate void ButtonPressedHandler();
+    public event ButtonPressedHandler OnButtonPressed;
+
     Animator anim;
     private static bool isCooldown = false; // Static cooldown flag for both levers
 
@@ -53,34 +56,36 @@ public class AN_Button : MonoBehaviour
         startQuat = transform.rotation;
     }
 
-    void Update()
+void Update()
+{
+    if (!Locked && !isCooldown)
     {
-        if (!Locked && !isCooldown)
+        if (Input.GetMouseButtonDown(0)) // Interaksi tuas dan tombol dengan klik kiri
         {
-            if (Input.GetMouseButtonDown(0)) // Lever and button interaction with left-click
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out RaycastHit hit))
+                AN_Button button = hit.collider.GetComponent<AN_Button>();
+                if (button != null && button == this) // Periksa apakah objek yang diklik adalah tuas/tombol ini
                 {
-                    AN_Button button = hit.collider.GetComponent<AN_Button>();
-                    if (button != null && button == this) // Check if the clicked object is this lever/button
+                    if (isLever) // animasi
                     {
-                        if (isLever) // animations
-                        {
-                            anim.SetBool("LeverUp", true);
-                            HandleLeverPull(); // Handle lever pull logic
-                        }
-                        else
-                        {
-                            anim.SetTrigger("ButtonPress");
-                        }
-
-                        StartCoroutine(LeverCooldown()); // Start the cooldown
+                        anim.SetBool("LeverUp", true);
+                        HandleLeverPull(); // Tangani logika menarik tuas
                     }
+                    else
+                    {
+                        anim.SetTrigger("ButtonPress");
+                    }
+
+                    OnButtonPressed?.Invoke(); // Panggil acara tombol ditekan
+
+                    StartCoroutine(LeverCooldown()); // Mulai cooldown
                 }
             }
         }
     }
+}
 
     void HandleLeverPull()
     {
