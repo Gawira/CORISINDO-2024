@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RobotController : MonoBehaviour
@@ -8,6 +7,9 @@ public class RobotController : MonoBehaviour
     public Transform targetPoint;
     public float walkSpeed = 2f;
     private bool isWalking = false;
+
+    public delegate void DocumentGiveHandler();
+    public event DocumentGiveHandler OnDocumentGive;
 
     private void Start()
     {
@@ -26,12 +28,15 @@ public class RobotController : MonoBehaviour
         // Trigger the LookRight animation and rotate 90 degrees to the right
         animator.SetBool("Walk", false);
         yield return RotateToAngle(90f);
-    
+
         // Trigger the giving animation
         animator.SetTrigger("Giving");
 
         // Wait for the giving animation to finish
         yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
+        // Trigger the document give event
+        OnDocumentGive?.Invoke();
 
         // Switch to idle animation
         animator.SetBool("Walk", false);

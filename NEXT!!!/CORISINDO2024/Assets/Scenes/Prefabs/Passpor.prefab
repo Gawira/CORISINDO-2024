@@ -1356,7 +1356,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
 --- !u!1 &1542041888727562327
@@ -2312,7 +2312,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
 --- !u!1 &3399456515244341916
@@ -2462,7 +2462,7 @@ GameObject:
   - component: {fileID: 1245698592664411480}
   - component: {fileID: 1496860774140247901}
   - component: {fileID: 8036601425017741652}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Passpor
   m_TagString: Document
   m_Icon: {fileID: 0}
@@ -3563,6 +3563,6 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
