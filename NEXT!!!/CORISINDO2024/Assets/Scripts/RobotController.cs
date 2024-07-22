@@ -76,4 +76,25 @@ public class RobotController : MonoBehaviour
             yield return null;
         }
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Bat"))
+        {
+            GotHit();
+        }
+    }
+
+    public void GotHit()
+    {
+        // Trigger the "Taking Hit" animation
+        animator.SetBool("Taking Hit", true);
+        StartCoroutine(ResetTakingHit());
+    }
+
+    private IEnumerator ResetTakingHit()
+    {
+        yield return new WaitForSeconds(1f); // Adjust the duration to match the "Taking Hit" animation length
+        animator.SetBool("Taking Hit", false);
+    }
 }

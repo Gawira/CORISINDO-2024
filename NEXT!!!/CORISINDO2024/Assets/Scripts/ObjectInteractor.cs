@@ -3,6 +3,7 @@ using System.Collections;
 
 public class ObjectInteractor : MonoBehaviour
 {
+
     public CameraSwitcher cameraSwitcher;
     public Camera playerCamera;
     public Camera topDownCamera;
@@ -462,7 +463,7 @@ public class ObjectInteractor : MonoBehaviour
         float swingDuration = 0.1f; // Fast swing
         float returnDuration = 0.1f; // Return to original position
 
-        int steps = 40; // Increase the number of steps for smoother animation
+        int steps = 20; // Increase the number of steps for smoother animation
 
         // Pull-back phase
         for (int i = 0; i < steps; i++)
