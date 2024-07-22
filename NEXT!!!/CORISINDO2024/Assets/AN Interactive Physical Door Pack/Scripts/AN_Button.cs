@@ -39,11 +39,18 @@ public class AN_Button : MonoBehaviour
     public Vector3 stampEndPosition; // End position for the STAMP MACHINE
     public float stampSpeed = 0.1f; // Speed of the STAMP MACHINE movement
 
-    public delegate void ButtonPressedHandler();
-    public event ButtonPressedHandler OnButtonPressed;
+    public delegate void LeverPulledHandler(LeverType leverType);
+    public event LeverPulledHandler OnLeverPulled;
+
+    public enum LeverType { Accept, Reject }
+    public LeverType leverType;
+    public ObjectInteractor objectInteractor;
 
     Animator anim;
     private static bool isCooldown = false; // Static cooldown flag for both levers
+
+    public delegate void ButtonPressedHandler();
+    public event ButtonPressedHandler OnButtonPressed;
 
     void Start()
     {
@@ -56,36 +63,35 @@ public class AN_Button : MonoBehaviour
         startQuat = transform.rotation;
     }
 
-void Update()
-{
-    if (!Locked && !isCooldown)
+    void Update()
     {
-        if (Input.GetMouseButtonDown(0)) // Interaksi tuas dan tombol dengan klik kiri
+        if (!Locked && !isCooldown)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            if (Input.GetMouseButtonDown(0)) // Interaksi tuas dan tombol dengan klik kiri
             {
-                AN_Button button = hit.collider.GetComponent<AN_Button>();
-                if (button != null && button == this) // Periksa apakah objek yang diklik adalah tuas/tombol ini
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hit))
                 {
-                    if (isLever) // animasi
+                    AN_Button button = hit.collider.GetComponent<AN_Button>();
+                    if (button != null && button == this) // Periksa apakah objek yang diklik adalah tuas/tombol ini
                     {
-                        anim.SetBool("LeverUp", true);
-                        HandleLeverPull(); // Tangani logika menarik tuas
-                    }
-                    else
-                    {
-                        anim.SetTrigger("ButtonPress");
-                    }
+                        if (isLever) // animasi
+                        {
+                            anim.SetBool("LeverUp", true);
+                            HandleLeverPull(); // Tangani logika menarik tuas
+                        }
+                        else
+                        {
+                            anim.SetTrigger("ButtonPress");
+                            OnButtonPressed?.Invoke(); // Panggil acara tombol ditekan
+                        }
 
-                    OnButtonPressed?.Invoke(); // Panggil acara tombol ditekan
-
-                    StartCoroutine(LeverCooldown()); // Mulai cooldown
+                        StartCoroutine(LeverCooldown()); // Mulai cooldown
+                    }
                 }
             }
         }
     }
-}
 
     void HandleLeverPull()
     {
@@ -105,7 +111,15 @@ void Update()
         {
             StartCoroutine(MoveStampMachine());
         }
+
+        OnLeverPulled?.Invoke(leverType); // Call the OnLeverPulled method when the lever is pulled
     }
+
+    public void TriggerButtonPressed()
+    {
+        OnButtonPressed?.Invoke();
+    }
+
 
     IEnumerator ChangeLightColor(Color newColor)
     {
@@ -142,7 +156,7 @@ void Update()
     IEnumerator LeverCooldown()
     {
         isCooldown = true;
-        yield return new WaitForSeconds(5f); // 5 seconds delay
+        yield return new WaitForSeconds(999f); // 999 seconds delay till the next target spawn
         isCooldown = false;
     }
 }

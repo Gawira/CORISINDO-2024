@@ -3,6 +3,7 @@ using System.Collections;
 
 public class ObjectInteractor : MonoBehaviour
 {
+
     public CameraSwitcher cameraSwitcher;
     public Camera playerCamera;
     public Camera topDownCamera;
@@ -35,7 +36,6 @@ public class ObjectInteractor : MonoBehaviour
 
     private int viewState = 0; // -1 for left view, 0 for main view, 1 for right view
 
-
     void Start()
     {
         if (cameraSwitcher == null || playerCamera == null || topDownCamera == null || batEquipPosition == null || batHandlerPosition == null || workstationTablePosition == null || rightSideTablePosition == null)
@@ -43,12 +43,7 @@ public class ObjectInteractor : MonoBehaviour
             Debug.LogError("Cameras, CameraSwitcher, BatEquipPosition, BatHandlerPosition, WorkstationTablePosition, or RightSideTablePosition not assigned in the inspector");
         }
 
-        // Find the passport object in the scene based on its layer
-        passportObject = FindObjectByLayer(LayerMask.NameToLayer("Passport"));
-        if (passportObject == null)
-        {
-            Debug.LogError("Passport object not found in the scene");
-        }
+        UpdatePassportReference();
     }
 
     void Update()
@@ -104,8 +99,26 @@ public class ObjectInteractor : MonoBehaviour
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
                 Debug.Log("Hit: " + hit.collider.gameObject.name);
-                if (cameraSwitcher.IsInTopDownView() && hit.collider.CompareTag("Document"))
+
+                // Allow button interaction in both top-down and main camera views
+                if (hit.collider.CompareTag("Button"))
                 {
+                    Debug.Log("Button clicked!");
+                    SimpleButton button = hit.collider.GetComponent<SimpleButton>();
+                    if (button != null)
+                    {
+                        Debug.Log("SimpleButton component found!");
+                        button.PressButton(); // Call the method to trigger the event
+                    }
+                    else
+                    {
+                        Debug.LogError("SimpleButton component not found on the hit object.");
+                        LogHitObjectHierarchy(hit.collider.gameObject); // Log the hierarchy and components
+                    }
+                }
+                else if (cameraSwitcher.IsInTopDownView() && hit.collider.CompareTag("Document"))
+                {
+                    // Handle document selection in top-down view...
                     if (selectedObject == hit.collider.gameObject)
                     {
                         isDragging = true;
@@ -195,7 +208,22 @@ public class ObjectInteractor : MonoBehaviour
             StartCoroutine(PerformBatAttack());
         }
     }
+    void LogHitObjectHierarchy(GameObject hitObject)
+    {
+        Debug.Log("Hit object hierarchy:");
+        Transform current = hitObject.transform;
+        while (current != null)
+        {
+            Debug.Log(current.name);
+            current = current.parent;
+        }
 
+        Debug.Log("Components on hit object:");
+        foreach (var component in hitObject.GetComponents<Component>())
+        {
+            Debug.Log(component.GetType().Name);
+        }
+    }
     void SelectObject(GameObject obj, Vector3 hitPoint)
     {
         if (selectedObject != null && selectedObject != obj)
@@ -435,7 +463,7 @@ public class ObjectInteractor : MonoBehaviour
         float swingDuration = 0.1f; // Fast swing
         float returnDuration = 0.1f; // Return to original position
 
-        int steps = 40; // Increase the number of steps for smoother animation
+        int steps = 20; // Increase the number of steps for smoother animation
 
         // Pull-back phase
         for (int i = 0; i < steps; i++)
@@ -496,18 +524,32 @@ public class ObjectInteractor : MonoBehaviour
             passportObject.transform.rotation = Quaternion.Euler(0, 90, 0); // Set Y rotation to 90
         }
     }
-    private GameObject FindObjectByLayer(int layer)
+
+    public void LabelPassport(string status)
     {
-        GameObject[] objects = GameObject.FindObjectsOfType<GameObject>();
-        foreach (GameObject obj in objects)
+        if (passportObject != null)
         {
-            if (obj.layer == layer)
-            {
-                return obj;
-            }
+            Debug.Log("Passport labeled as: " + status);
+            // Here you can add more logic to visually indicate the label, such as applying a stamp
+        }
+    }
+
+    public void UpdatePassportReference()
+    {
+        passportObject = FindObjectByIdentifier<PassportIdentifier>();
+        if (passportObject == null)
+        {
+            Debug.LogError("Passport object not found in the scene");
+        }
+    }
+
+    private GameObject FindObjectByIdentifier<T>() where T : Component
+    {
+        T[] objects = GameObject.FindObjectsOfType<T>();
+        if (objects.Length > 0)
+        {
+            return objects[0].gameObject; // Return the first object found with the identifier component
         }
         return null;
     }
-
-
 }
