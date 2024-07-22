@@ -8,6 +8,7 @@ TagManager:
   - Document
   - Bat
   - BatHandler
+  - Enemy
   layers:
   - Default
   - TransparentFX
