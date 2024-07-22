@@ -8,12 +8,28 @@ public class RobotController : MonoBehaviour
     public float walkSpeed = 2f;
     private bool isWalking = false;
 
+    private int robotID;
+    private string category;
+
     public delegate void DocumentGiveHandler();
     public event DocumentGiveHandler OnDocumentGive;
 
     private void Start()
     {
         StartCoroutine(PerformActions());
+    }
+
+    public void SetID(int id, string category)
+    {
+        this.robotID = id;
+        this.category = category;
+        // Optionally, update the robot's appearance or UI with the ID and category
+        Debug.Log($"Robot {category} ID: {id}");
+    }
+
+    public int GetID()
+    {
+        return robotID;
     }
 
     private IEnumerator PerformActions()
