@@ -8,6 +8,7 @@ public class BotTeleporter : MonoBehaviour
 
     void Start()
     {
+        // Teleport a random bot
         TeleportRandomBot();
     }
 
@@ -32,10 +33,11 @@ public class BotTeleporter : MonoBehaviour
         bot.transform.position = botSpawner.position;
         bot.transform.rotation = Quaternion.Euler(0, 0, 0);
 
-        // Optionally, log the action for debugging
+        // Enable the RobotController script
         RobotController robotController = bot.GetComponent<RobotController>();
         if (robotController != null)
         {
+            robotController.enabled = true;
             Debug.Log($"Teleported Bot ID: {robotController.GetID()} to position: {botSpawner.position}");
         }
     }

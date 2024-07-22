@@ -205,7 +205,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4390186227210976165, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_Name
-      value: TRAIN PASS CARD (1) Variant
+      value: TRAIN PASS CARD 6
       objectReference: {fileID: 0}
     - target: {fileID: 5386045344482597923, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_LocalPosition.x
@@ -221,19 +221,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5386045344482597923, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.0000005960464
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 5386045344482597923, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 6.730311e-24
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5386045344482597923, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -1
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 5386045344482597923, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -1.1102231e-17
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5386045344482597923, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -241,7 +241,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5386045344482597923, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -180
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 5386045344482597923, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
