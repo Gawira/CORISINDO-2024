@@ -21,15 +21,6 @@ public class MoveObject : MonoBehaviour
 
     void Update()
     {
-        // Mulai animasi dengan menekan tombol (misalnya, tombol 'Space')
-        if (Input.GetKeyDown(KeyCode.Space) && !isAnimating && !isReturning)
-        {
-            isAnimating = true;
-            elapsedTime = 0; // Reset waktu
-            startXPosition = transform.position.x; // Set posisi x awal ketika animasi dimulai
-            Debug.Log("Animasi dimulai. Posisi x awal: " + startXPosition + " Posisi x akhir: " + endXPosition);
-        }
-
         // Jika animasi sedang berjalan
         if (isAnimating)
         {
@@ -51,6 +42,17 @@ public class MoveObject : MonoBehaviour
                 // Mulai kembalikan objek ke posisi semula setelah durasi tertentu
                 StartCoroutine(KembaliKePosisiSemula());
             }
+        }
+    }
+
+    public void StartMoving()
+    {
+        if (!isAnimating && !isReturning)
+        {
+            isAnimating = true;
+            elapsedTime = 0; // Reset waktu
+            startXPosition = transform.position.x; // Set posisi x awal ketika animasi dimulai
+            Debug.Log("Animasi dimulai. Posisi x awal: " + startXPosition + " Posisi x akhir: " + endXPosition);
         }
     }
 
