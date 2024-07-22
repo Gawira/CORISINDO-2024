@@ -8,6 +8,7 @@ TagManager:
   - Document
   - Bat
   - BatHandler
+  - Button
   layers:
   - Default
   - TransparentFX

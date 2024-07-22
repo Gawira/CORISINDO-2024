@@ -39,8 +39,8 @@ public class AN_Button : MonoBehaviour
     public Vector3 stampEndPosition; // End position for the STAMP MACHINE
     public float stampSpeed = 0.1f; // Speed of the STAMP MACHINE movement
 
-    public delegate void ButtonPressedHandler();
-    public event ButtonPressedHandler OnButtonPressed;
+    public delegate void LeverPulledHandler(LeverType leverType);
+    public event LeverPulledHandler OnLeverPulled;
 
     public enum LeverType { Accept, Reject }
     public LeverType leverType;
@@ -48,6 +48,9 @@ public class AN_Button : MonoBehaviour
 
     Animator anim;
     private static bool isCooldown = false; // Static cooldown flag for both levers
+
+    public delegate void ButtonPressedHandler();
+    public event ButtonPressedHandler OnButtonPressed;
 
     void Start()
     {
@@ -80,9 +83,8 @@ public class AN_Button : MonoBehaviour
                         else
                         {
                             anim.SetTrigger("ButtonPress");
+                            OnButtonPressed?.Invoke(); // Panggil acara tombol ditekan
                         }
-
-                        OnButtonPressed?.Invoke(); // Panggil acara tombol ditekan
 
                         StartCoroutine(LeverCooldown()); // Mulai cooldown
                     }
@@ -110,23 +112,14 @@ public class AN_Button : MonoBehaviour
             StartCoroutine(MoveStampMachine());
         }
 
-        OnLeverPulled(); // Call the OnLeverPulled method when the lever is pulled
+        OnLeverPulled?.Invoke(leverType); // Call the OnLeverPulled method when the lever is pulled
     }
 
-    public void OnLeverPulled()
+    public void TriggerButtonPressed()
     {
-        Debug.Log("Lever pulled: " + leverType); // Add this debug log to check if the method is called
-        if (leverType == LeverType.Accept)
-        {
-            Debug.Log("Accept lever pulled");
-            objectInteractor.LabelPassport("Accepted");
-        }
-        else if (leverType == LeverType.Reject)
-        {
-            Debug.Log("Reject lever pulled");
-            objectInteractor.LabelPassport("Rejected");
-        }
+        OnButtonPressed?.Invoke();
     }
+
 
     IEnumerator ChangeLightColor(Color newColor)
     {

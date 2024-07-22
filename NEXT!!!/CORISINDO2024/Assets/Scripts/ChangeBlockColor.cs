@@ -8,17 +8,32 @@ public class ChangeBlockColor : MonoBehaviour
         Hijau
     }
 
-    public AN_Button buttonScript; // Referensi ke skrip tombol
-    public Renderer blockRenderer; // Referensi ke renderer blok
-    public ColorOptions selectedColor = ColorOptions.Hijau; // Warna yang dipilih
+    public AN_Button buttonScript; // Reference to the button script
+    public Renderer blockRenderer; // Reference to the block renderer
+    public ColorOptions selectedColor = ColorOptions.Hijau; // Selected color
     public MoveObject doorScript; // Reference to the MoveObject script controlling the door
 
     private void Start()
     {
         if (buttonScript != null)
         {
-            buttonScript.OnButtonPressed += ChangeColor; // Berlangganan ke acara tombol ditekan
-            buttonScript.OnButtonPressed += TryOpenDoor; // Subscribe to button press event to try opening the door
+            buttonScript.OnLeverPulled += ChangeColor; // Subscribe to lever pulled event
+            buttonScript.OnButtonPressed += TryOpenDoor; // Subscribe to button pressed event
+            Debug.Log("Subscribed to button events.");
+        }
+        else
+        {
+            Debug.LogError("buttonScript is not assigned.");
+        }
+
+        if (blockRenderer == null)
+        {
+            Debug.LogError("blockRenderer is not assigned.");
+        }
+
+        if (doorScript == null)
+        {
+            Debug.LogError("doorScript is not assigned.");
         }
     }
 
@@ -26,32 +41,58 @@ public class ChangeBlockColor : MonoBehaviour
     {
         if (buttonScript != null)
         {
-            buttonScript.OnButtonPressed -= ChangeColor; // Berhenti berlangganan dari acara tombol ditekan
-            buttonScript.OnButtonPressed -= TryOpenDoor; // Unsubscribe from button press event
+            buttonScript.OnLeverPulled -= ChangeColor; // Unsubscribe from lever pulled event
+            buttonScript.OnButtonPressed -= TryOpenDoor; // Unsubscribe from button pressed event
         }
     }
 
-    private void ChangeColor()
+    private void ChangeColor(AN_Button.LeverType leverType)
     {
         if (blockRenderer != null)
         {
-            switch (selectedColor)
+            switch (leverType)
             {
-                case ColorOptions.Hijau:
+                case AN_Button.LeverType.Accept:
                     blockRenderer.material.color = Color.green;
+                    selectedColor = ColorOptions.Hijau;
+                    Debug.Log("Button color changed to green.");
                     break;
-                case ColorOptions.Merah:
+                case AN_Button.LeverType.Reject:
                     blockRenderer.material.color = Color.red;
+                    selectedColor = ColorOptions.Merah;
+                    Debug.Log("Button color changed to red.");
                     break;
             }
+        }
+        else
+        {
+            Debug.LogError("blockRenderer is not assigned in ChangeColor.");
         }
     }
 
     private void TryOpenDoor()
     {
-        if (blockRenderer != null && blockRenderer.material.color == Color.green && doorScript != null)
+        Debug.Log("TryOpenDoor called.");
+        if (blockRenderer != null)
         {
-            doorScript.StartMoving();
+            Debug.Log("Button color is: " + blockRenderer.material.color);
+            if (blockRenderer.material.color == Color.green && doorScript != null)
+            {
+                Debug.Log("Opening the door...");
+                doorScript.StartMoving();
+            }
+            else if (blockRenderer.material.color != Color.green)
+            {
+                Debug.Log("Button color is not green, door will not open.");
+            }
+            else if (doorScript == null)
+            {
+                Debug.LogError("doorScript is not assigned.");
+            }
+        }
+        else
+        {
+            Debug.LogError("blockRenderer is not assigned in TryOpenDoor.");
         }
     }
 }

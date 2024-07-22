@@ -98,8 +98,26 @@ public class ObjectInteractor : MonoBehaviour
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
                 Debug.Log("Hit: " + hit.collider.gameObject.name);
-                if (cameraSwitcher.IsInTopDownView() && hit.collider.CompareTag("Document"))
+
+                // Allow button interaction in both top-down and main camera views
+                if (hit.collider.CompareTag("Button"))
                 {
+                    Debug.Log("Button clicked!");
+                    SimpleButton button = hit.collider.GetComponent<SimpleButton>();
+                    if (button != null)
+                    {
+                        Debug.Log("SimpleButton component found!");
+                        button.PressButton(); // Call the method to trigger the event
+                    }
+                    else
+                    {
+                        Debug.LogError("SimpleButton component not found on the hit object.");
+                        LogHitObjectHierarchy(hit.collider.gameObject); // Log the hierarchy and components
+                    }
+                }
+                else if (cameraSwitcher.IsInTopDownView() && hit.collider.CompareTag("Document"))
+                {
+                    // Handle document selection in top-down view...
                     if (selectedObject == hit.collider.gameObject)
                     {
                         isDragging = true;
@@ -189,7 +207,22 @@ public class ObjectInteractor : MonoBehaviour
             StartCoroutine(PerformBatAttack());
         }
     }
+    void LogHitObjectHierarchy(GameObject hitObject)
+    {
+        Debug.Log("Hit object hierarchy:");
+        Transform current = hitObject.transform;
+        while (current != null)
+        {
+            Debug.Log(current.name);
+            current = current.parent;
+        }
 
+        Debug.Log("Components on hit object:");
+        foreach (var component in hitObject.GetComponents<Component>())
+        {
+            Debug.Log(component.GetType().Name);
+        }
+    }
     void SelectObject(GameObject obj, Vector3 hitPoint)
     {
         if (selectedObject != null && selectedObject != obj)
