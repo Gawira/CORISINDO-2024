@@ -11,6 +11,7 @@ public class DocumentHandler : MonoBehaviour
     public float spawnAreaDepth = 2f; // Use depth for Z-axis spacing
 
     private List<GameObject> spawnedDocuments = new List<GameObject>();
+    public ObjectInteractor objectInteractor; // Reference to ObjectInteractor
 
     // Ensure this method is public so it can be called by animation events
     public void StartGivingDocuments()
@@ -48,6 +49,9 @@ public class DocumentHandler : MonoBehaviour
             // Slide the document to the end position
             StartCoroutine(SlideDocument(document, spawnPosition, endPosition));
         }
+
+        // Update the passport reference in ObjectInteractor
+        objectInteractor.UpdatePassportReference();
     }
 
     private IEnumerator SlideDocument(GameObject document, Vector3 startPosition, Vector3 endPosition)

@@ -42,6 +42,10 @@ public class AN_Button : MonoBehaviour
     public delegate void ButtonPressedHandler();
     public event ButtonPressedHandler OnButtonPressed;
 
+    public enum LeverType { Accept, Reject }
+    public LeverType leverType;
+    public ObjectInteractor objectInteractor;
+
     Animator anim;
     private static bool isCooldown = false; // Static cooldown flag for both levers
 
@@ -56,36 +60,36 @@ public class AN_Button : MonoBehaviour
         startQuat = transform.rotation;
     }
 
-void Update()
-{
-    if (!Locked && !isCooldown)
+    void Update()
     {
-        if (Input.GetMouseButtonDown(0)) // Interaksi tuas dan tombol dengan klik kiri
+        if (!Locked && !isCooldown)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            if (Input.GetMouseButtonDown(0)) // Interaksi tuas dan tombol dengan klik kiri
             {
-                AN_Button button = hit.collider.GetComponent<AN_Button>();
-                if (button != null && button == this) // Periksa apakah objek yang diklik adalah tuas/tombol ini
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hit))
                 {
-                    if (isLever) // animasi
+                    AN_Button button = hit.collider.GetComponent<AN_Button>();
+                    if (button != null && button == this) // Periksa apakah objek yang diklik adalah tuas/tombol ini
                     {
-                        anim.SetBool("LeverUp", true);
-                        HandleLeverPull(); // Tangani logika menarik tuas
-                    }
-                    else
-                    {
-                        anim.SetTrigger("ButtonPress");
-                    }
+                        if (isLever) // animasi
+                        {
+                            anim.SetBool("LeverUp", true);
+                            HandleLeverPull(); // Tangani logika menarik tuas
+                        }
+                        else
+                        {
+                            anim.SetTrigger("ButtonPress");
+                        }
 
-                    OnButtonPressed?.Invoke(); // Panggil acara tombol ditekan
+                        OnButtonPressed?.Invoke(); // Panggil acara tombol ditekan
 
-                    StartCoroutine(LeverCooldown()); // Mulai cooldown
+                        StartCoroutine(LeverCooldown()); // Mulai cooldown
+                    }
                 }
             }
         }
     }
-}
 
     void HandleLeverPull()
     {
@@ -104,6 +108,23 @@ void Update()
         if (stampMachine != null)
         {
             StartCoroutine(MoveStampMachine());
+        }
+
+        OnLeverPulled(); // Call the OnLeverPulled method when the lever is pulled
+    }
+
+    public void OnLeverPulled()
+    {
+        Debug.Log("Lever pulled: " + leverType); // Add this debug log to check if the method is called
+        if (leverType == LeverType.Accept)
+        {
+            Debug.Log("Accept lever pulled");
+            objectInteractor.LabelPassport("Accepted");
+        }
+        else if (leverType == LeverType.Reject)
+        {
+            Debug.Log("Reject lever pulled");
+            objectInteractor.LabelPassport("Rejected");
         }
     }
 
@@ -142,7 +163,7 @@ void Update()
     IEnumerator LeverCooldown()
     {
         isCooldown = true;
-        yield return new WaitForSeconds(5f); // 5 seconds delay
+        yield return new WaitForSeconds(999f); // 999 seconds delay till the next target spawn
         isCooldown = false;
     }
 }

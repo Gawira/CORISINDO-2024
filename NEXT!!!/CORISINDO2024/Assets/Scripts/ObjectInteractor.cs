@@ -35,7 +35,6 @@ public class ObjectInteractor : MonoBehaviour
 
     private int viewState = 0; // -1 for left view, 0 for main view, 1 for right view
 
-
     void Start()
     {
         if (cameraSwitcher == null || playerCamera == null || topDownCamera == null || batEquipPosition == null || batHandlerPosition == null || workstationTablePosition == null || rightSideTablePosition == null)
@@ -43,12 +42,7 @@ public class ObjectInteractor : MonoBehaviour
             Debug.LogError("Cameras, CameraSwitcher, BatEquipPosition, BatHandlerPosition, WorkstationTablePosition, or RightSideTablePosition not assigned in the inspector");
         }
 
-        // Find the passport object in the scene based on its layer
-        passportObject = FindObjectByLayer(LayerMask.NameToLayer("Passport"));
-        if (passportObject == null)
-        {
-            Debug.LogError("Passport object not found in the scene");
-        }
+        UpdatePassportReference();
     }
 
     void Update()
@@ -496,18 +490,32 @@ public class ObjectInteractor : MonoBehaviour
             passportObject.transform.rotation = Quaternion.Euler(0, 90, 0); // Set Y rotation to 90
         }
     }
-    private GameObject FindObjectByLayer(int layer)
+
+    public void LabelPassport(string status)
     {
-        GameObject[] objects = GameObject.FindObjectsOfType<GameObject>();
-        foreach (GameObject obj in objects)
+        if (passportObject != null)
         {
-            if (obj.layer == layer)
-            {
-                return obj;
-            }
+            Debug.Log("Passport labeled as: " + status);
+            // Here you can add more logic to visually indicate the label, such as applying a stamp
+        }
+    }
+
+    public void UpdatePassportReference()
+    {
+        passportObject = FindObjectByIdentifier<PassportIdentifier>();
+        if (passportObject == null)
+        {
+            Debug.LogError("Passport object not found in the scene");
+        }
+    }
+
+    private GameObject FindObjectByIdentifier<T>() where T : Component
+    {
+        T[] objects = GameObject.FindObjectsOfType<T>();
+        if (objects.Length > 0)
+        {
+            return objects[0].gameObject; // Return the first object found with the identifier component
         }
         return null;
     }
-
-
 }
