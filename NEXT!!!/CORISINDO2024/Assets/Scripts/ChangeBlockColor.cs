@@ -8,17 +8,49 @@ public class ChangeBlockColor : MonoBehaviour
         Hijau
     }
 
-    public AN_Button buttonScript; // Referensi ke skrip tombol
-    public Renderer blockRenderer; // Referensi ke renderer blok
-    public ColorOptions selectedColor = ColorOptions.Hijau; // Warna yang dipilih
+    public AN_Button buttonScript; // Reference to the button script
+    public Renderer blockRenderer; // Reference to the block renderer
+    public ColorOptions selectedColor = ColorOptions.Hijau; // Selected color
     public MoveObject doorScript; // Reference to the MoveObject script controlling the door
+    public CameraSwitcher cameraSwitcher; // Reference to the CameraSwitcher script
 
     private void Start()
     {
         if (buttonScript != null)
         {
-            buttonScript.OnButtonPressed += ChangeColor; // Berlangganan ke acara tombol ditekan
-            buttonScript.OnButtonPressed += TryOpenDoor; // Subscribe to button press event to try opening the door
+            buttonScript.OnButtonPressed += ChangeColor; // Subscribe to the button pressed event to change color
+            buttonScript.OnButtonPressed += TryOpenDoor; // Subscribe to the button pressed event to try opening the door
+        }
+        else
+        {
+            Debug.LogError("ButtonScript is not assigned.");
+        }
+
+        if (blockRenderer == null)
+        {
+            blockRenderer = GetComponent<Renderer>();
+            if (blockRenderer == null)
+            {
+                Debug.LogError("BlockRenderer is not assigned and not found on the same GameObject.");
+            }
+        }
+
+        if (cameraSwitcher == null)
+        {
+            cameraSwitcher = FindObjectOfType<CameraSwitcher>();
+            if (cameraSwitcher == null)
+            {
+                Debug.LogError("CameraSwitcher is not assigned and not found in the scene.");
+            }
+        }
+
+        if (doorScript == null)
+        {
+            doorScript = FindObjectOfType<MoveObject>();
+            if (doorScript == null)
+            {
+                Debug.LogError("DoorScript is not assigned and not found in the scene.");
+            }
         }
     }
 
@@ -26,8 +58,8 @@ public class ChangeBlockColor : MonoBehaviour
     {
         if (buttonScript != null)
         {
-            buttonScript.OnButtonPressed -= ChangeColor; // Berhenti berlangganan dari acara tombol ditekan
-            buttonScript.OnButtonPressed -= TryOpenDoor; // Unsubscribe from button press event
+            buttonScript.OnButtonPressed -= ChangeColor; // Unsubscribe from the button pressed event
+            buttonScript.OnButtonPressed -= TryOpenDoor; // Unsubscribe from the button pressed event
         }
     }
 
@@ -44,14 +76,34 @@ public class ChangeBlockColor : MonoBehaviour
                     blockRenderer.material.color = Color.red;
                     break;
             }
+            Debug.Log("Block color changed to: " + selectedColor); // Add this debug log
         }
     }
 
     private void TryOpenDoor()
     {
-        if (blockRenderer != null && blockRenderer.material.color == Color.green && doorScript != null)
+        Debug.Log("TryOpenDoor called."); // Add this debug log
+        if (blockRenderer != null && blockRenderer.material.color == Color.green && doorScript != null && cameraSwitcher != null)
         {
-            doorScript.StartMoving();
+            if (!cameraSwitcher.IsInTopDownView() && !cameraSwitcher.IsTransitioning())
+            {
+                doorScript.StartMoving();
+                Debug.Log("Door opening triggered by button press."); // Add this debug log
+            }
+            else
+            {
+                Debug.Log("Button press ignored. Camera not in main view or transitioning."); // Add this debug log
+            }
         }
+        else
+        {
+            Debug.Log("Button press ignored. Block color is not green or doorScript is null."); // Add this debug log
+        }
+    }
+
+    public void SetColor(ColorOptions color)
+    {
+        selectedColor = color;
+        ChangeColor();
     }
 }

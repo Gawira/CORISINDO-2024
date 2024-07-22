@@ -98,6 +98,15 @@ public class ObjectInteractor : MonoBehaviour
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
                 Debug.Log("Hit: " + hit.collider.gameObject.name);
+
+                // Check for button interaction
+                AN_Button button = hit.collider.GetComponent<AN_Button>();
+                if (button != null)
+                {
+                    button.OnButtonPressed?.Invoke();
+                    return;
+                }
+
                 if (cameraSwitcher.IsInTopDownView() && hit.collider.CompareTag("Document"))
                 {
                     if (selectedObject == hit.collider.gameObject)

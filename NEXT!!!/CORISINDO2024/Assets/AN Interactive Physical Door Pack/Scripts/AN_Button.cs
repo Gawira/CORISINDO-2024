@@ -46,8 +46,10 @@ public class AN_Button : MonoBehaviour
     public LeverType leverType;
     public ObjectInteractor objectInteractor;
 
-    Animator anim;
+    private Animator anim;
     private static bool isCooldown = false; // Static cooldown flag for both levers
+    public ChangeBlockColor changeBlockColor; // Reference to the ChangeBlockColor script
+    public CameraSwitcher cameraSwitcher; // Reference to the CameraSwitcher script
 
     void Start()
     {
@@ -58,33 +60,54 @@ public class AN_Button : MonoBehaviour
             rampQuat = RampObject.rotation;
         }
         startQuat = transform.rotation;
+
+        if (cameraSwitcher == null)
+        {
+            cameraSwitcher = FindObjectOfType<CameraSwitcher>();
+            if (cameraSwitcher == null)
+            {
+                Debug.LogError("CameraSwitcher is not assigned and not found in the scene.");
+            }
+        }
+
+        if (changeBlockColor == null)
+        {
+            changeBlockColor = GetComponent<ChangeBlockColor>();
+            if (changeBlockColor == null)
+            {
+                Debug.LogError("ChangeBlockColor script is not assigned and not found on the same GameObject.");
+            }
+        }
     }
 
     void Update()
     {
+        if (cameraSwitcher == null || changeBlockColor == null) return;
+
         if (!Locked && !isCooldown)
         {
-            if (Input.GetMouseButtonDown(0)) // Interaksi tuas dan tombol dengan klik kiri
+            if (Input.GetMouseButtonDown(0) && !cameraSwitcher.IsInTopDownView()) // Interact with levers and buttons with left-click
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hit))
                 {
+                    Debug.Log("Hit: " + hit.collider.gameObject.name); // Add this debug log
                     AN_Button button = hit.collider.GetComponent<AN_Button>();
-                    if (button != null && button == this) // Periksa apakah objek yang diklik adalah tuas/tombol ini
+                    if (button != null && button == this) // Check if the clicked object is this lever/button
                     {
-                        if (isLever) // animasi
+                        if (isLever) // Handle lever animation
                         {
                             anim.SetBool("LeverUp", true);
-                            HandleLeverPull(); // Tangani logika menarik tuas
+                            HandleLeverPull(); // Handle lever pulling logic
                         }
                         else
                         {
                             anim.SetTrigger("ButtonPress");
+                            OnButtonPressed?.Invoke(); // Invoke the button pressed event
+                            Debug.Log("Button pressed: " + gameObject.name); // Add this debug log
                         }
 
-                        OnButtonPressed?.Invoke(); // Panggil acara tombol ditekan
-
-                        StartCoroutine(LeverCooldown()); // Mulai cooldown
+                        StartCoroutine(LeverCooldown()); // Start cooldown
                     }
                 }
             }
@@ -98,10 +121,12 @@ public class AN_Button : MonoBehaviour
             if (gameObject.name.Contains("Green")) // Assuming the lever names contain "Green" or "Red"
             {
                 StartCoroutine(ChangeLightColor(greenLightColor));
+                if (changeBlockColor != null) changeBlockColor.SetColor(ChangeBlockColor.ColorOptions.Hijau);
             }
             else if (gameObject.name.Contains("Red"))
             {
                 StartCoroutine(ChangeLightColor(redLightColor));
+                if (changeBlockColor != null) changeBlockColor.SetColor(ChangeBlockColor.ColorOptions.Merah);
             }
         }
 
@@ -163,7 +188,7 @@ public class AN_Button : MonoBehaviour
     IEnumerator LeverCooldown()
     {
         isCooldown = true;
-        yield return new WaitForSeconds(999f); // 999 seconds delay till the next target spawn
+        yield return new WaitForSeconds(3f); // 999 seconds delay till the next target spawn
         isCooldown = false;
     }
 }
