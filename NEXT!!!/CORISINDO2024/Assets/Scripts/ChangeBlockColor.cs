@@ -11,12 +11,14 @@ public class ChangeBlockColor : MonoBehaviour
     public AN_Button buttonScript; // Referensi ke skrip tombol
     public Renderer blockRenderer; // Referensi ke renderer blok
     public ColorOptions selectedColor = ColorOptions.Hijau; // Warna yang dipilih
+    public MoveObject doorScript; // Reference to the MoveObject script controlling the door
 
     private void Start()
     {
         if (buttonScript != null)
         {
             buttonScript.OnButtonPressed += ChangeColor; // Berlangganan ke acara tombol ditekan
+            buttonScript.OnButtonPressed += TryOpenDoor; // Subscribe to button press event to try opening the door
         }
     }
 
@@ -25,6 +27,7 @@ public class ChangeBlockColor : MonoBehaviour
         if (buttonScript != null)
         {
             buttonScript.OnButtonPressed -= ChangeColor; // Berhenti berlangganan dari acara tombol ditekan
+            buttonScript.OnButtonPressed -= TryOpenDoor; // Unsubscribe from button press event
         }
     }
 
@@ -41,6 +44,14 @@ public class ChangeBlockColor : MonoBehaviour
                     blockRenderer.material.color = Color.red;
                     break;
             }
+        }
+    }
+
+    private void TryOpenDoor()
+    {
+        if (blockRenderer != null && blockRenderer.material.color == Color.green && doorScript != null)
+        {
+            doorScript.StartMoving();
         }
     }
 }
