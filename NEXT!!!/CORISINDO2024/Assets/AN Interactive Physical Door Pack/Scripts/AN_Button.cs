@@ -61,6 +61,12 @@ public class AN_Button : MonoBehaviour
             rampQuat = RampObject.rotation;
         }
         startQuat = transform.rotation;
+
+        // Find and assign the ObjectInteractor script if not already assigned in the inspector
+        if (objectInteractor == null)
+        {
+            objectInteractor = FindObjectOfType<ObjectInteractor>();
+        }
     }
 
     void Update()
@@ -72,6 +78,12 @@ public class AN_Button : MonoBehaviour
                 if (!DocumentStateManager.IsDocumentAvailable)
                 {
                     Debug.Log("Document is not available. Lever cannot be pulled.");
+                    return;
+                }
+
+                if (!IsPassportOnRightSideTable())
+                {
+                    Debug.Log("Passport is not on the right side table. Lever cannot be pulled.");
                     return;
                 }
 
@@ -97,6 +109,14 @@ public class AN_Button : MonoBehaviour
                 }
             }
         }
+    }
+    bool IsPassportOnRightSideTable()
+    {
+        if (objectInteractor != null)
+        {
+            return objectInteractor.IsPassportOnRightSideTable();
+        }
+        return false;
     }
 
     void HandleLeverPull()

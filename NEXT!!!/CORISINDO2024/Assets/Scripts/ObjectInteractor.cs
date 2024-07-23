@@ -552,4 +552,17 @@ public class ObjectInteractor : MonoBehaviour
         }
         return null;
     }
+
+    public bool IsPassportOnRightSideTable()
+    {
+        if (passportObject != null)
+        {
+            float distance = Vector3.Distance(passportObject.transform.position, rightSideTablePosition.position);
+            Debug.Log("Passport Position: " + passportObject.transform.position);
+            Debug.Log("Right Side Table Position: " + rightSideTablePosition.position);
+            Debug.Log("Distance: " + distance);
+            return distance < 0.2f; // Adjust this threshold as needed
+        }
+        return false;
+    }
 }
