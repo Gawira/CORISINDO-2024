@@ -7,12 +7,16 @@ public class RobotController : MonoBehaviour
     public Transform targetPoint;
     public float walkSpeed = 2f;
     private bool isWalking = false;
-
+    private int hitCount = 0; // Counter for the number of hits
     private int robotID;
     private string category;
+    private bool canTakeHit = false; // Flag to check if the bot can take a hit
 
     public delegate void DocumentGiveHandler();
     public event DocumentGiveHandler OnDocumentGive;
+
+    public BotTeleporter botTeleporter; // Reference to the BotTeleporter script
+    public SimpleButton simpleButton; // Reference to the SimpleButton script
 
     private void Start()
     {
@@ -54,6 +58,9 @@ public class RobotController : MonoBehaviour
         // Trigger the document give event
         OnDocumentGive?.Invoke();
 
+        // Allow the bot to take hits
+        canTakeHit = true;
+
         // Switch to idle animation
         animator.SetBool("Walk", false);
     }
@@ -79,7 +86,7 @@ public class RobotController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Bat"))
+        if (other.CompareTag("Bat") && canTakeHit)
         {
             GotHit();
         }
@@ -87,14 +94,34 @@ public class RobotController : MonoBehaviour
 
     public void GotHit()
     {
-        // Trigger the "Taking Hit" animation
-        animator.SetBool("Taking Hit", true);
-        StartCoroutine(ResetTakingHit());
+        // Increment the hit counter
+        hitCount++;
+
+        // Force transition to idle before restarting "Taking Hit" animation
+        animator.Play("Idle", 0, 0);
+        animator.Play("Taking Hit", 0, 0);
+
+        // If the bot has been hit 3 times, move it to the left side
+        if (hitCount >= 3)
+        {
+            StartCoroutine(MoveToLeftSide());
+        }
     }
 
-    private IEnumerator ResetTakingHit()
+    private IEnumerator MoveToLeftSide()
     {
-        yield return new WaitForSeconds(1f); // Adjust the duration to match the "Taking Hit" animation length
-        animator.SetBool("Taking Hit", false);
+        yield return RotateToAngle(90f); // Rotate to face left side
+        animator.SetBool("Walk", true);
+        Vector3 targetPosition = transform.position + new Vector3(0, 0, -5f); // Move towards the left side
+        yield return MoveToPosition(targetPosition);
+        animator.SetBool("Walk", false);
+
+        Destroy(gameObject); // Optionally destroy the bot after it moves to the left side
+
+        // Spawn a new bot after the current one is destroyed
+        botTeleporter.SpawnNewBot();
+
+        // Reset button and lever states
+        simpleButton.ResetButtonAndLever();
     }
 }

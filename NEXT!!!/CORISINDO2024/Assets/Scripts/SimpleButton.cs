@@ -211,7 +211,7 @@ public class SimpleButton : MonoBehaviour
         }
     }
 
-    private void ResetButtonAndLever()
+    public void ResetButtonAndLever()
     {
         // Reset button cooldown
         isCooldown = false;
