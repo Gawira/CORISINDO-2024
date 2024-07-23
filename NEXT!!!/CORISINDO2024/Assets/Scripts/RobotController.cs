@@ -94,6 +94,12 @@ public class RobotController : MonoBehaviour
 
     public void GotHit()
     {
+        // Check if the hit count is less than 3 before registering the hit
+        if (hitCount >= 3)
+        {
+            return; // Do not register the hit if the count is 3 or more
+        }
+
         // Increment the hit counter
         hitCount++;
 
@@ -102,14 +108,19 @@ public class RobotController : MonoBehaviour
         animator.Play("Taking Hit", 0, 0);
 
         // If the bot has been hit 3 times, move it to the left side
-        if (hitCount >= 3)
+        if (hitCount == 3)
         {
+            // Move document back
+            MoveDocumentBack();
             StartCoroutine(MoveToLeftSide());
         }
     }
 
     private IEnumerator MoveToLeftSide()
     {
+        // Wait for the "Taking Hit" animation to finish
+        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
         yield return RotateToAngle(90f); // Rotate to face left side
         animator.SetBool("Walk", true);
         Vector3 targetPosition = transform.position + new Vector3(0, 0, -5f); // Move towards the left side
@@ -123,5 +134,19 @@ public class RobotController : MonoBehaviour
 
         // Reset button and lever states
         simpleButton.ResetButtonAndLever();
+    }
+
+    private void MoveDocumentBack()
+    {
+        GameObject[] documents = GameObject.FindGameObjectsWithTag("Document");
+        foreach (GameObject doc in documents)
+        {
+            Rigidbody rb = doc.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+            }
+            StartCoroutine(simpleButton.MoveDocumentCoroutine(doc.transform, rb));
+        }
     }
 }

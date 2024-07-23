@@ -156,7 +156,7 @@ public class SimpleButton : MonoBehaviour
         }
     }
 
-    private IEnumerator MoveDocumentCoroutine(Transform document, Rigidbody rb)
+    public IEnumerator MoveDocumentCoroutine(Transform document, Rigidbody rb)
     {
         Vector3 startPosition = document.position;
         Vector3 intermediatePosition = new Vector3(startPosition.x, startPosition.y + documentLiftHeight, startPosition.z);
