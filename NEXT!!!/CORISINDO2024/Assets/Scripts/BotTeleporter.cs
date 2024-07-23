@@ -6,6 +6,8 @@ public class BotTeleporter : MonoBehaviour
     public Transform botSpawner; // The position where the bot will be teleported
     public RobotInitializer robotInitializer; // Reference to RobotInitializer
 
+    private GameObject teleportedBot; // Reference to the teleported bot
+
     void Start()
     {
         // Teleport a random bot
@@ -21,10 +23,10 @@ public class BotTeleporter : MonoBehaviour
 
         // Choose a random bot
         int randomIndex = Random.Range(0, allBots.Count);
-        GameObject randomBot = allBots[randomIndex];
+        teleportedBot = allBots[randomIndex];
 
         // Teleport the selected bot
-        TeleportBot(randomBot);
+        TeleportBot(teleportedBot);
     }
 
     void TeleportBot(GameObject bot)
@@ -40,5 +42,10 @@ public class BotTeleporter : MonoBehaviour
             robotController.enabled = true;
             Debug.Log($"Teleported Bot ID: {robotController.GetID()} to position: {botSpawner.position}");
         }
+    }
+
+    public GameObject GetTeleportedBot()
+    {
+        return teleportedBot;
     }
 }

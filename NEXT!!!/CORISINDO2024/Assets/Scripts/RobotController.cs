@@ -58,7 +58,7 @@ public class RobotController : MonoBehaviour
         animator.SetBool("Walk", false);
     }
 
-    private IEnumerator MoveToPosition(Vector3 target)
+    public IEnumerator MoveToPosition(Vector3 target)
     {
         while (Vector3.Distance(transform.position, target) > 0.1f)
         {
@@ -67,7 +67,7 @@ public class RobotController : MonoBehaviour
         }
     }
 
-    private IEnumerator RotateToAngle(float angle)
+    public IEnumerator RotateToAngle(float angle)
     {
         Quaternion targetRotation = Quaternion.Euler(0, transform.eulerAngles.y + angle, 0);
         while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)

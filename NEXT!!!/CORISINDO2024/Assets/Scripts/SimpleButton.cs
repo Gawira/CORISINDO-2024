@@ -9,6 +9,7 @@ public class SimpleButton : MonoBehaviour
     public Color greenColor = Color.green;
     public Color redColor = Color.red;
     public float doorOpenDelay = 5.0f; // Delay before button can be pressed again
+    public BotTeleporter botTeleporter; // Reference to the BotTeleporter script
 
     public event Action OnButtonPressed;
 
@@ -24,6 +25,11 @@ public class SimpleButton : MonoBehaviour
         if (doorScript == null)
         {
             Debug.LogError("Door Script is not assigned.");
+        }
+
+        if (botTeleporter == null)
+        {
+            Debug.LogError("Bot Teleporter is not assigned.");
         }
     }
 
@@ -51,6 +57,17 @@ public class SimpleButton : MonoBehaviour
             {
                 Debug.Log("Opening the door...");
                 doorScript.StartMoving();
+
+                // Get the teleported bot and start its animation
+                GameObject teleportedBot = botTeleporter.GetTeleportedBot();
+                if (teleportedBot != null)
+                {
+                    RobotController robotController = teleportedBot.GetComponent<RobotController>();
+                    if (robotController != null)
+                    {
+                        StartCoroutine(StartBotAnimation(robotController));
+                    }
+                }
             }
             else if (blockRenderer.material.color != greenColor)
             {
@@ -65,6 +82,22 @@ public class SimpleButton : MonoBehaviour
         {
             Debug.LogError("blockRenderer is not assigned in TryOpenDoor.");
         }
+    }
+
+    private IEnumerator StartBotAnimation(RobotController robotController)
+    {
+        // Rotate the bot to the left
+        yield return robotController.RotateToAngle(-90f);
+
+        // Trigger the walking animation
+        robotController.animator.SetBool("Walk", true);
+
+        // Move the bot forward on the Z axis
+        Vector3 targetPosition = robotController.transform.position + new Vector3(0, 0, 5f);
+        yield return robotController.MoveToPosition(targetPosition);
+
+        // Stop the walking animation
+        robotController.animator.SetBool("Walk", false);
     }
 
     private IEnumerator CooldownCoroutine()
