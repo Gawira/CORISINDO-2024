@@ -52,6 +52,9 @@ public class DocumentHandler : MonoBehaviour
 
         // Update the passport reference in ObjectInteractor
         objectInteractor.UpdatePassportReference();
+
+        // Set the document availability flag
+        DocumentStateManager.IsDocumentAvailable = true;
     }
 
     private IEnumerator SlideDocument(GameObject document, Vector3 startPosition, Vector3 endPosition)

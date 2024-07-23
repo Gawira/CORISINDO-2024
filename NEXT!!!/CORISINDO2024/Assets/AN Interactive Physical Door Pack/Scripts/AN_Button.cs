@@ -69,6 +69,12 @@ public class AN_Button : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0)) // Interaksi tuas dan tombol dengan klik kiri
             {
+                if (!DocumentStateManager.IsDocumentAvailable)
+                {
+                    Debug.Log("Document is not available. Lever cannot be pulled.");
+                    return;
+                }
+
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hit))
                 {

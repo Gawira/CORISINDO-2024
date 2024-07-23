@@ -38,9 +38,9 @@ public class SimpleButton : MonoBehaviour
 
     public void PressButton()
     {
-        if (isCooldown)
+        if (isCooldown || !DocumentStateManager.IsDocumentAvailable)
         {
-            Debug.Log("Button is in cooldown, please wait.");
+            Debug.Log("Button is in cooldown or document is not available, please wait.");
             return;
         }
 
@@ -224,5 +224,8 @@ public class SimpleButton : MonoBehaviour
         {
             leverScript.ResetLever();
         }
+
+        // Reset document availability state
+        DocumentStateManager.IsDocumentAvailable = false;
     }
 }
