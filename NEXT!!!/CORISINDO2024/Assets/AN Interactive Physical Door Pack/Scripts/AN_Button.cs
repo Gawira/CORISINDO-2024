@@ -159,4 +159,10 @@ public class AN_Button : MonoBehaviour
         yield return new WaitForSeconds(999f); // 999 seconds delay till the next target spawn
         isCooldown = false;
     }
+    public void ResetLever()
+    {
+        isCooldown = false;
+        // Add any additional reset logic needed for the lever
+        Debug.Log("Lever reset.");
+    }
 }

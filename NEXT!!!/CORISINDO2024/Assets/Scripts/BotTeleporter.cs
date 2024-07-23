@@ -7,29 +7,39 @@ public class BotTeleporter : MonoBehaviour
     public RobotInitializer robotInitializer; // Reference to RobotInitializer
 
     private GameObject teleportedBot; // Reference to the teleported bot
+    private List<GameObject> availableBots; // List of bots that can still be called
 
     void Start()
     {
-        // Teleport a random bot
+        // Initialize the available bots list with all bots
+        availableBots = new List<GameObject>();
+        availableBots.AddRange(robotInitializer.acceptedRobots);
+        availableBots.AddRange(robotInitializer.rejectedRobots);
+
+        // Teleport a random bot at the start
         TeleportRandomBot();
     }
 
-    void TeleportRandomBot()
+    public void TeleportRandomBot()
     {
-        // Combine both lists from RobotInitializer
-        List<GameObject> allBots = new List<GameObject>();
-        allBots.AddRange(robotInitializer.acceptedRobots);
-        allBots.AddRange(robotInitializer.rejectedRobots);
+        if (availableBots.Count == 0)
+        {
+            Debug.LogError("No more available bots to teleport.");
+            return;
+        }
 
-        // Choose a random bot
-        int randomIndex = Random.Range(0, allBots.Count);
-        teleportedBot = allBots[randomIndex];
+        // Choose a random bot from the available bots list
+        int randomIndex = Random.Range(0, availableBots.Count);
+        teleportedBot = availableBots[randomIndex];
+
+        // Remove the selected bot from the available bots list
+        availableBots.RemoveAt(randomIndex);
 
         // Teleport the selected bot
         TeleportBot(teleportedBot);
     }
 
-    void TeleportBot(GameObject bot)
+    private void TeleportBot(GameObject bot)
     {
         // Set the bot's position and rotation
         bot.transform.position = botSpawner.position;
@@ -47,5 +57,10 @@ public class BotTeleporter : MonoBehaviour
     public GameObject GetTeleportedBot()
     {
         return teleportedBot;
+    }
+
+    public void SpawnNewBot()
+    {
+        TeleportRandomBot();
     }
 }

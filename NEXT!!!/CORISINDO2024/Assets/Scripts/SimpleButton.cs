@@ -8,7 +8,8 @@ public class SimpleButton : MonoBehaviour
     public MoveObject doorScript;
     public Color greenColor = Color.green;
     public Color redColor = Color.red;
-    public float doorOpenDelay = 5.0f; // Delay before button can be pressed agai
+    public Color defaultColor = Color.white; // Default color for the button when reset
+    public float doorOpenDelay = 5.0f; // Delay before button can be pressed again
     public BotTeleporter botTeleporter; // Reference to the BotTeleporter script
     public float documentMoveDuration = 1.0f; // Duration to move document
     public float documentLiftHeight = 0.15f; // Height to lift the document
@@ -46,10 +47,17 @@ public class SimpleButton : MonoBehaviour
         Debug.Log("Button Pressed!");
         OnButtonPressed?.Invoke();
 
-        if (blockRenderer.material.color == greenColor || blockRenderer.material.color == redColor)
+        if (blockRenderer.material.color == greenColor)
         {
             TryOpenDoor();
             MoveDocuments();
+            StartCoroutine(StartAcceptedBotAnimation());
+            StartCoroutine(CooldownCoroutine());
+        }
+        else if (blockRenderer.material.color == redColor)
+        {
+            MoveDocuments();
+            StartCoroutine(StartRejectedBotAnimation());
             StartCoroutine(CooldownCoroutine());
         }
     }
@@ -64,17 +72,6 @@ public class SimpleButton : MonoBehaviour
             {
                 Debug.Log("Opening the door...");
                 doorScript.StartMoving();
-
-                // Get the teleported bot and start its animation
-                GameObject teleportedBot = botTeleporter.GetTeleportedBot();
-                if (teleportedBot != null)
-                {
-                    RobotController robotController = teleportedBot.GetComponent<RobotController>();
-                    if (robotController != null)
-                    {
-                        StartCoroutine(StartBotAnimation(robotController));
-                    }
-                }
             }
             else if (blockRenderer.material.color != greenColor)
             {
@@ -91,21 +88,59 @@ public class SimpleButton : MonoBehaviour
         }
     }
 
-
-    private IEnumerator StartBotAnimation(RobotController robotController)
+    private IEnumerator StartAcceptedBotAnimation()
     {
-        // Rotate the bot to the left
-        yield return robotController.RotateToAngle(-90f);
+        GameObject teleportedBot = botTeleporter.GetTeleportedBot();
+        if (teleportedBot != null)
+        {
+            RobotController robotController = teleportedBot.GetComponent<RobotController>();
+            if (robotController != null)
+            {
+                yield return robotController.RotateToAngle(-90f);
 
-        // Trigger the walking animation
-        robotController.animator.SetBool("Walk", true);
+                robotController.animator.SetBool("Walk", true);
 
-        // Move the bot forward on the Z axis
-        Vector3 targetPosition = robotController.transform.position + new Vector3(0, 0, 5f);
-        yield return robotController.MoveToPosition(targetPosition);
+                Vector3 targetPosition = robotController.transform.position + new Vector3(0, 0, 5f);
+                yield return robotController.MoveToPosition(targetPosition);
 
-        // Stop the walking animation
-        robotController.animator.SetBool("Walk", false);
+                robotController.animator.SetBool("Walk", false);
+                Destroy(robotController.gameObject); // Destroy the bot after it reaches the target position
+
+                // Spawn a new bot after the current one is destroyed
+                botTeleporter.SpawnNewBot();
+
+                // Reset button and lever states
+                ResetButtonAndLever();
+            }
+        }
+    }
+
+    private IEnumerator StartRejectedBotAnimation()
+    {
+        GameObject teleportedBot = botTeleporter.GetTeleportedBot();
+        if (teleportedBot != null)
+        {
+            RobotController robotController = teleportedBot.GetComponent<RobotController>();
+            if (robotController != null)
+            {
+                yield return robotController.RotateToAngle(90f);
+
+                robotController.animator.SetBool("Walk", true);
+
+                Vector3 targetPosition = robotController.transform.position + new Vector3(0, 0, -5f);
+                yield return robotController.MoveToPosition(targetPosition);
+
+                robotController.animator.SetBool("Walk", false);
+                Destroy(robotController.gameObject); // Destroy the bot after it reaches the target position
+
+                // Spawn a new bot after the current one is destroyed
+                botTeleporter.SpawnNewBot();
+
+                // Reset button and lever states
+                ResetButtonAndLever();
+            }
+        }
+    }
 
     private void MoveDocuments()
     {
@@ -119,7 +154,6 @@ public class SimpleButton : MonoBehaviour
             }
             StartCoroutine(MoveDocumentCoroutine(doc.transform, rb));
         }
-    }
     }
 
     private IEnumerator MoveDocumentCoroutine(Transform document, Rigidbody rb)
@@ -157,7 +191,6 @@ public class SimpleButton : MonoBehaviour
         {
             rb.isKinematic = false;
         }
-
     }
 
     private IEnumerator CooldownCoroutine()
@@ -175,6 +208,21 @@ public class SimpleButton : MonoBehaviour
         {
             blockRenderer.material.color = color;
             Debug.Log("Button color changed to: " + color);
+        }
+    }
+
+    private void ResetButtonAndLever()
+    {
+        // Reset button cooldown
+        isCooldown = false;
+        // Reset button color to default
+        blockRenderer.material.color = defaultColor;
+
+        // Reset lever state
+        AN_Button leverScript = FindObjectOfType<AN_Button>(); // Find the lever script instance
+        if (leverScript != null)
+        {
+            leverScript.ResetLever();
         }
     }
 }
