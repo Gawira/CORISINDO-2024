@@ -8,8 +8,10 @@ public class SimpleButton : MonoBehaviour
     public MoveObject doorScript;
     public Color greenColor = Color.green;
     public Color redColor = Color.red;
-    public float doorOpenDelay = 5.0f; // Delay before button can be pressed again
+    public float doorOpenDelay = 5.0f; // Delay before button can be pressed agai
     public BotTeleporter botTeleporter; // Reference to the BotTeleporter script
+    public float documentMoveDuration = 1.0f; // Duration to move document
+    public float documentLiftHeight = 0.15f; // Height to lift the document
 
     public event Action OnButtonPressed;
 
@@ -43,8 +45,13 @@ public class SimpleButton : MonoBehaviour
 
         Debug.Log("Button Pressed!");
         OnButtonPressed?.Invoke();
-        TryOpenDoor();
-        StartCoroutine(CooldownCoroutine());
+
+        if (blockRenderer.material.color == greenColor || blockRenderer.material.color == redColor)
+        {
+            TryOpenDoor();
+            MoveDocuments();
+            StartCoroutine(CooldownCoroutine());
+        }
     }
 
     private void TryOpenDoor()
@@ -84,6 +91,7 @@ public class SimpleButton : MonoBehaviour
         }
     }
 
+
     private IEnumerator StartBotAnimation(RobotController robotController)
     {
         // Rotate the bot to the left
@@ -98,6 +106,58 @@ public class SimpleButton : MonoBehaviour
 
         // Stop the walking animation
         robotController.animator.SetBool("Walk", false);
+
+    private void MoveDocuments()
+    {
+        GameObject[] documents = GameObject.FindGameObjectsWithTag("Document");
+        foreach (GameObject doc in documents)
+        {
+            Rigidbody rb = doc.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+            }
+            StartCoroutine(MoveDocumentCoroutine(doc.transform, rb));
+        }
+    }
+    }
+
+    private IEnumerator MoveDocumentCoroutine(Transform document, Rigidbody rb)
+    {
+        Vector3 startPosition = document.position;
+        Vector3 intermediatePosition = new Vector3(startPosition.x, startPosition.y + documentLiftHeight, startPosition.z);
+        Vector3 endPosition = new Vector3(document.position.x - 2f, document.position.y, document.position.z);
+        float elapsedTime = 0;
+
+        // Lift document up
+        while (elapsedTime < documentMoveDuration / 2)
+        {
+            document.position = Vector3.Lerp(startPosition, intermediatePosition, elapsedTime / (documentMoveDuration / 2));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        document.position = intermediatePosition;
+
+        // Move document to end position
+        elapsedTime = 0;
+        while (elapsedTime < documentMoveDuration / 2)
+        {
+            document.position = Vector3.Lerp(intermediatePosition, endPosition, elapsedTime / (documentMoveDuration / 2));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        document.position = endPosition;
+
+        yield return new WaitForSeconds(0.5f); // Optional delay before moving back
+
+        Debug.Log("Document moved back to spawn position. Destroying document.");
+        Destroy(document.gameObject); // Destroy the document after reaching the spawn position
+
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+        }
+
     }
 
     private IEnumerator CooldownCoroutine()
