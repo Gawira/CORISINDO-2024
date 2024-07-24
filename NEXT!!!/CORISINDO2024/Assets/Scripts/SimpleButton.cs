@@ -14,9 +14,14 @@ public class SimpleButton : MonoBehaviour
     public float documentMoveDuration = 1.0f; // Duration to move document
     public float documentLiftHeight = 0.15f; // Height to lift the document
 
+    public GameObject[] darahBiruIndicators; // Array to hold Darah biru indicators
+    public GameObject peringatan; // Reference to the Peringatan game object
+    private int mistakesCount = 0; // Counter for the number of mistakes
+
     public event Action OnButtonPressed;
 
     private bool isCooldown = false;
+    private bool isPunished = false; // Flag to ensure punishment is only applied once per robot
 
     private void Start()
     {
@@ -34,6 +39,16 @@ public class SimpleButton : MonoBehaviour
         {
             Debug.LogError("Bot Teleporter is not assigned.");
         }
+
+        if (peringatan == null)
+        {
+            Debug.LogError("Peringatan is not assigned.");
+        }
+
+        if (darahBiruIndicators == null || darahBiruIndicators.Length == 0)
+        {
+            Debug.LogError("Darah Biru Indicators are not assigned.");
+        }
     }
 
     public void PressButton()
@@ -47,18 +62,47 @@ public class SimpleButton : MonoBehaviour
         Debug.Log("Button Pressed!");
         OnButtonPressed?.Invoke();
 
-        if (blockRenderer.material.color == greenColor)
+        GameObject teleportedBot = botTeleporter.GetTeleportedBot();
+        if (teleportedBot != null)
         {
-            TryOpenDoor();
-            MoveDocuments();
-            StartCoroutine(StartAcceptedBotAnimation());
-            StartCoroutine(CooldownCoroutine());
-        }
-        else if (blockRenderer.material.color == redColor)
-        {
-            MoveDocuments();
-            StartCoroutine(StartRejectedBotAnimation());
-            StartCoroutine(CooldownCoroutine());
+            RobotController robotController = teleportedBot.GetComponent<RobotController>();
+            if (robotController != null)
+            {
+                string robotCategory = robotController.GetCategory();
+                bool isMistake = false;
+
+                if ((blockRenderer.material.color == greenColor && robotCategory == "Rejected") ||
+                    (blockRenderer.material.color == redColor && robotCategory == "Accepted"))
+                {
+                    // User made a mistake
+                    isMistake = true;
+                }
+
+                if (isMistake)
+                {
+                    // Apply punishment if not already punished
+                    if (!isPunished)
+                    {
+                        isPunished = true;
+                        StartCoroutine(HandleMistake());
+                    }
+                }
+
+                // Move the robot regardless of whether the user made a mistake
+                if (blockRenderer.material.color == greenColor)
+                {
+                    TryOpenDoor();
+                    MoveDocuments();
+                    StartCoroutine(StartAcceptedBotAnimation());
+                }
+                else if (blockRenderer.material.color == redColor)
+                {
+                    MoveDocuments();
+                    StartCoroutine(StartRejectedBotAnimation());
+                }
+
+                StartCoroutine(CooldownCoroutine());
+            }
         }
     }
 
@@ -200,6 +244,9 @@ public class SimpleButton : MonoBehaviour
         yield return new WaitForSeconds(doorOpenDelay); // Cooldown duration
         isCooldown = false;
         Debug.Log("Button cooldown ended, it can be pressed again.");
+
+        // Reset the punishment flag for the next robot
+        isPunished = false;
     }
 
     public void SetColor(Color color)
@@ -227,5 +274,27 @@ public class SimpleButton : MonoBehaviour
 
         // Reset document availability state
         DocumentStateManager.IsDocumentAvailable = false;
+    }
+
+    private IEnumerator HandleMistake()
+    {
+        // Play the warning video
+        peringatan.SetActive(true);
+        yield return new WaitForSeconds(5f); // Adjust duration to match the warning video length
+        peringatan.SetActive(false);
+
+        // Disable one "Darah biru" indicator
+        if (mistakesCount < darahBiruIndicators.Length)
+        {
+            darahBiruIndicators[mistakesCount].SetActive(false);
+            mistakesCount++;
+
+            // Check if the user has run out of lives
+            if (mistakesCount >= darahBiruIndicators.Length)
+            {
+                // Handle game over logic here
+                Debug.Log("Game Over");
+            }
+        }
     }
 }
