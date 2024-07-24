@@ -13,6 +13,7 @@ public class RobotController : MonoBehaviour
     private bool canTakeHit = false; // Flag to check if the bot can take a hit
     private bool isYelling = false; // Flag for yelling state
     private bool hasBeenPunished = false; // Flag to check if the user has already been punished
+    private bool isTakingHitFinished = false; // Flag to indicate if the "Taking Hit" animation has finished
 
     public delegate void DocumentGiveHandler();
     public event DocumentGiveHandler OnDocumentGive;
@@ -118,6 +119,7 @@ public class RobotController : MonoBehaviour
         // Force transition to idle before restarting "Taking Hit" animation
         animator.Play("Idle", 0, 0);
         animator.Play("Taking Hit", 0, 0);
+        isTakingHitFinished = false;
 
         // If the bot has been hit 3 times, handle the logic for yelling or moving
         if (hitCount == 3)
@@ -144,7 +146,7 @@ public class RobotController : MonoBehaviour
     private IEnumerator MoveToLeftSideAfterHit()
     {
         // Wait for the "Taking Hit" animation to finish
-        yield return new WaitForSeconds(GetCurrentAnimationLength("Taking Hit"));
+        yield return new WaitUntil(() => isTakingHitFinished);
 
         yield return RotateToAngle(90f); // Rotate to face left side
         animator.SetBool("Walk", true);
@@ -204,16 +206,9 @@ public class RobotController : MonoBehaviour
         hasBeenPunished = true;
     }
 
-    private float GetCurrentAnimationLength(string animationName)
+    // This method will be called by the animation event
+    public void OnTakingHitFinished()
     {
-        AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
-        foreach (AnimationClip clip in clips)
-        {
-            if (clip.name == animationName)
-            {
-                return clip.length;
-            }
-        }
-        return 0f; // Default to 0 if animation not found
+        isTakingHitFinished = true;
     }
 }
