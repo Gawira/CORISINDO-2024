@@ -26,6 +26,8 @@ public class SimpleButton : MonoBehaviour
 
     private VideoPlayer videoPlayer; // Reference to the VideoPlayer component
     public bool hasPunishedUser = false; // Flag to ensure the user is punished only once per robot
+    public bool initialDecisionCorrect = false; // Flag to track if the initial decision was correct
+
 
     private void Start()
     {
@@ -92,6 +94,11 @@ public class SimpleButton : MonoBehaviour
                 {
                     // User made a mistake
                     isMistake = true;
+                    initialDecisionCorrect = false;
+                }
+                else
+                {
+                    initialDecisionCorrect = true;
                 }
 
                 if (isMistake && !hasPunishedUser)
@@ -118,6 +125,7 @@ public class SimpleButton : MonoBehaviour
             }
         }
     }
+
 
 
 

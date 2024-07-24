@@ -125,18 +125,27 @@ public class RobotController : MonoBehaviour
         animator.Play("Idle", 0, 0);
         animator.Play("Taking Hit", 0, 0);
 
-        // If the bot has been hit 3 times, handle the logic for moving and punishing
+        // If the bot has been hit 3 times, handle the logic for yelling or moving
         if (hitCount == 3)
         {
-            // Start the hit backwards animation immediately
-            StartCoroutine(PlayHitBackwardsAnimation());
-            MoveDocumentsBack();
-
-            // Apply punishment if not already punished
-            if (!simpleButton.hasPunishedUser)
+            if (isYelling && simpleButton.initialDecisionCorrect)
             {
-                simpleButton.hasPunishedUser = true; // Mark that punishment has been applied
-                StartCoroutine(simpleButton.HandleMistake());
+                // If the robot is yelling and the initial decision was correct, don't punish the user
+                MoveDocumentsBack();
+                StartCoroutine(PlayHitBackwardsAnimation());
+            }
+            else
+            {
+                // Start the hit backwards animation immediately
+                StartCoroutine(PlayHitBackwardsAnimation());
+                MoveDocumentsBack();
+
+                // Apply punishment if not already punished
+                if (!simpleButton.hasPunishedUser)
+                {
+                    simpleButton.hasPunishedUser = true; // Mark that punishment has been applied
+                    StartCoroutine(simpleButton.HandleMistake());
+                }
             }
         }
     }
