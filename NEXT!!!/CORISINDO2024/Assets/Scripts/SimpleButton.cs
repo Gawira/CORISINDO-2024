@@ -25,6 +25,7 @@ public class SimpleButton : MonoBehaviour
     private bool isPunished = false; // Flag to ensure punishment is only applied once per robot
 
     private VideoPlayer videoPlayer; // Reference to the VideoPlayer component
+    public bool hasPunishedUser = false; // Flag to ensure the user is punished only once per robot
 
     private void Start()
     {
@@ -93,14 +94,11 @@ public class SimpleButton : MonoBehaviour
                     isMistake = true;
                 }
 
-                if (isMistake)
+                if (isMistake && !hasPunishedUser)
                 {
                     // Apply punishment if not already punished
-                    if (!isPunished)
-                    {
-                        isPunished = true;
-                        StartCoroutine(HandleMistake());
-                    }
+                    hasPunishedUser = true; // Mark that punishment has been applied
+                    StartCoroutine(HandleMistake());
                 }
 
                 // Move the robot regardless of whether the user made a mistake
@@ -120,6 +118,8 @@ public class SimpleButton : MonoBehaviour
             }
         }
     }
+
+
 
     private void TryOpenDoor()
     {
@@ -182,7 +182,7 @@ public class SimpleButton : MonoBehaviour
             RobotController robotController = teleportedBot.GetComponent<RobotController>();
             if (robotController != null)
             {
-                if (UnityEngine.Random.value < 0.2f) // 20% chance to trigger yelling
+                if (UnityEngine.Random.value < 1f) // 20% chance to trigger yelling
                 {
                     robotController.TriggerYelling();
                     yield return new WaitUntil(() => robotController.HitCount >= 3);
@@ -302,7 +302,23 @@ public class SimpleButton : MonoBehaviour
         Debug.Log("Starting punishment video...");
         peringatan.SetActive(true);
 
-        yield return new WaitForSeconds(4.5f);
+        // Ensure the VideoPlayer component is assigned
+        if (videoPlayer == null)
+        {
+            videoPlayer = peringatan.GetComponent<VideoPlayer>();
+        }
+
+        // Wait until the video has finished playing
+        if (videoPlayer != null)
+        {
+            videoPlayer.Play();
+            yield return new WaitUntil(() => !videoPlayer.isPlaying);
+        }
+        else
+        {
+            // Fallback delay if no VideoPlayer component is found
+            yield return new WaitForSecondsRealtime(4.55f);
+        }
 
         Debug.Log("Stopping punishment video...");
         peringatan.SetActive(false);

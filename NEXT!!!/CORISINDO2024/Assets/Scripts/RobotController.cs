@@ -52,6 +52,9 @@ public class RobotController : MonoBehaviour
 
     private IEnumerator PerformActions()
     {
+        // Reset the hasPunishedUser flag for the new robot
+        simpleButton.hasPunishedUser = false;
+
         // Start walking
         animator.SetBool("Walk", true);
         isWalking = true;
@@ -78,6 +81,7 @@ public class RobotController : MonoBehaviour
         // Switch to idle animation
         animator.SetBool("Walk", false);
     }
+
 
     public IEnumerator MoveToPosition(Vector3 target)
     {
@@ -121,28 +125,23 @@ public class RobotController : MonoBehaviour
         animator.Play("Idle", 0, 0);
         animator.Play("Taking Hit", 0, 0);
 
-        // If the bot has been hit 3 times, handle the logic for yelling or moving
+        // If the bot has been hit 3 times, handle the logic for moving and punishing
         if (hitCount == 3)
         {
-            if (isYelling && category == "Rejected")
+            // Start the hit backwards animation immediately
+            StartCoroutine(PlayHitBackwardsAnimation());
+            MoveDocumentsBack();
+
+            // Apply punishment if not already punished
+            if (!simpleButton.hasPunishedUser)
             {
-                // If the robot is yelling and should be rejected, don't punish the user
-                MoveDocumentsBack();
-                StartCoroutine(PlayHitBackwardsAnimation());
-            }
-            else
-            {
-                // Otherwise, handle the mistake and move the bot
-                if (!hasBeenPunished)
-                {
-                    hasBeenPunished = true;
-                    StartCoroutine(simpleButton.HandleMistake());
-                }
-                MoveDocumentsBack();
-                StartCoroutine(PlayHitBackwardsAnimation());
+                simpleButton.hasPunishedUser = true; // Mark that punishment has been applied
+                StartCoroutine(simpleButton.HandleMistake());
             }
         }
     }
+
+
 
     private IEnumerator PlayHitBackwardsAnimation()
     {
