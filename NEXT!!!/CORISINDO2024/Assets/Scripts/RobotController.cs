@@ -13,7 +13,7 @@ public class RobotController : MonoBehaviour
     private bool canTakeHit = false; // Flag to check if the bot can take a hit
     private bool isYelling = false; // Flag for yelling state
     private bool hasBeenPunished = false; // Flag to check if the user has already been punished
-    private bool isTakingHitFinished = false; // Flag to indicate if the "Taking Hit" animation has finished
+    private bool isHitBackwardsFinished = false; // Flag to indicate if the "Hit Backwards" animation has finished
 
     public delegate void DocumentGiveHandler();
     public event DocumentGiveHandler OnDocumentGive;
@@ -119,7 +119,6 @@ public class RobotController : MonoBehaviour
         // Force transition to idle before restarting "Taking Hit" animation
         animator.Play("Idle", 0, 0);
         animator.Play("Taking Hit", 0, 0);
-        isTakingHitFinished = false;
 
         // If the bot has been hit 3 times, handle the logic for yelling or moving
         if (hitCount == 3)
@@ -128,7 +127,7 @@ public class RobotController : MonoBehaviour
             {
                 // If the robot is yelling and should be rejected, don't punish the user
                 MoveDocumentsBack();
-                StartCoroutine(MoveToLeftSideAfterHit());
+                StartCoroutine(PlayHitBackwardsAnimation());
             }
             else
             {
@@ -138,29 +137,37 @@ public class RobotController : MonoBehaviour
                     StartCoroutine(simpleButton.HandleMistake());
                 }
                 MoveDocumentsBack();
-                StartCoroutine(MoveToLeftSideAfterHit());
+                StartCoroutine(PlayHitBackwardsAnimation());
             }
         }
     }
 
-    private IEnumerator MoveToLeftSideAfterHit()
+    private IEnumerator PlayHitBackwardsAnimation()
     {
-        // Wait for the "Taking Hit" animation to finish
-        yield return new WaitUntil(() => isTakingHitFinished);
+        // Immediately transition to "Hit Backwards" animation
+        animator.Play("Hit Backwards", 0, 0);
+        isHitBackwardsFinished = false;
 
-        yield return RotateToAngle(90f); // Rotate to face left side
-        animator.SetBool("Walk", true);
-        Vector3 targetPosition = transform.position + new Vector3(0, 0, -5f); // Move towards the left side
-        yield return MoveToPosition(targetPosition);
-        animator.SetBool("Walk", false);
+        // Wait for the "Hit Backwards" animation to finish
+        yield return new WaitUntil(() => isHitBackwardsFinished);
 
-        Destroy(gameObject); // Optionally destroy the bot after it moves to the left side
+        // Perform the cleanup actions after the "Hit Backwards" animation finishes
+        if (this != null) // Check if the object is not destroyed
+        {
+            Destroy(gameObject); // Optionally destroy the bot after it moves to the left side
 
-        // Spawn a new bot after the current one is destroyed
-        botTeleporter.SpawnNewBot();
+            // Spawn a new bot after the current one is destroyed
+            if (botTeleporter != null)
+            {
+                botTeleporter.SpawnNewBot();
+            }
 
-        // Reset button and lever states
-        simpleButton.ResetButtonAndLever();
+            // Reset button and lever states
+            if (simpleButton != null)
+            {
+                simpleButton.ResetButtonAndLever();
+            }
+        }
     }
 
     private void MoveDocumentsBack()
@@ -207,8 +214,8 @@ public class RobotController : MonoBehaviour
     }
 
     // This method will be called by the animation event
-    public void OnTakingHitFinished()
+    public void OnHitBackwardsFinished()
     {
-        isTakingHitFinished = true;
+        isHitBackwardsFinished = true;
     }
 }
