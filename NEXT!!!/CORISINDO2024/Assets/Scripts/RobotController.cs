@@ -36,6 +36,11 @@ public class RobotController : MonoBehaviour
         return robotID;
     }
 
+    public string GetCategory()
+    {
+        return category;
+    }
+
     private IEnumerator PerformActions()
     {
         // Start walking
@@ -60,6 +65,9 @@ public class RobotController : MonoBehaviour
 
         // Allow the bot to take hits
         canTakeHit = true;
+
+        // Switch to idle animation
+        animator.Play("Idle");
 
     }
 
@@ -86,7 +94,6 @@ public class RobotController : MonoBehaviour
     {
         if (other.CompareTag("Bat") && canTakeHit)
         {
-            Debug.Log("Hit detected!");
             GotHit();
         }
     }
@@ -101,18 +108,17 @@ public class RobotController : MonoBehaviour
 
         // Increment the hit counter
         hitCount++;
-        Debug.Log("Got hit! Hit count: " + hitCount);
 
         // Force transition to idle before restarting "Taking Hit" animation
         animator.Play("Idle", 0, 0);
         animator.Play("Taking Hit", 0, 0);
-        Debug.Log("Playing Taking Hit animation");
 
         // If the bot has been hit 3 times, move it to the left side
         if (hitCount == 3)
         {
             // Move documents back
             MoveDocumentsBack();
+            StartCoroutine(simpleButton.HandleMistake());
             StartCoroutine(MoveToLeftSide());
         }
     }
