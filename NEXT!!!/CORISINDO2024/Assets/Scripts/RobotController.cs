@@ -67,7 +67,8 @@ public class RobotController : MonoBehaviour
         canTakeHit = true;
 
         // Switch to idle animation
-        animator.SetBool("Walk", false);
+        animator.Play("Idle");
+
     }
 
     public IEnumerator MoveToPosition(Vector3 target)
@@ -117,6 +118,7 @@ public class RobotController : MonoBehaviour
         {
             // Move documents back
             MoveDocumentsBack();
+            StartCoroutine(simpleButton.HandleMistake());
             StartCoroutine(MoveToLeftSide());
         }
     }

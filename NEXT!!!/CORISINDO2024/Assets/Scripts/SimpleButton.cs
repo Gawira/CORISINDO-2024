@@ -276,7 +276,7 @@ public class SimpleButton : MonoBehaviour
         DocumentStateManager.IsDocumentAvailable = false;
     }
 
-    private IEnumerator HandleMistake()
+    public IEnumerator HandleMistake()
     {
         // Play the warning video
         peringatan.SetActive(true);
