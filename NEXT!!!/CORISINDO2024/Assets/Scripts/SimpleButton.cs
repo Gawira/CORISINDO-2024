@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.Video;
 
 public class SimpleButton : MonoBehaviour
 {
@@ -84,6 +85,7 @@ public class SimpleButton : MonoBehaviour
                     if (!isPunished)
                     {
                         isPunished = true;
+                        robotController.SetPunished();
                         StartCoroutine(HandleMistake());
                     }
                 }
@@ -167,8 +169,14 @@ public class SimpleButton : MonoBehaviour
             RobotController robotController = teleportedBot.GetComponent<RobotController>();
             if (robotController != null)
             {
-                yield return robotController.RotateToAngle(90f);
+                if (UnityEngine.Random.value < 1f) // 20% chance to trigger yelling
+                {
+                    robotController.TriggerYelling();
+                    yield return new WaitUntil(() => robotController.HitCount >= 3);
+                    robotController.StopYelling();
+                }
 
+                yield return robotController.RotateToAngle(90f);
                 robotController.animator.SetBool("Walk", true);
 
                 Vector3 targetPosition = robotController.transform.position + new Vector3(0, 0, -5f);
@@ -280,7 +288,7 @@ public class SimpleButton : MonoBehaviour
     {
         // Play the warning video
         peringatan.SetActive(true);
-        yield return new WaitForSeconds(5f); // Adjust duration to match the warning video length
+        yield return new WaitForSeconds(5.2f); // Fixed delay for the video to finish
         peringatan.SetActive(false);
 
         // Disable one "Darah biru" indicator

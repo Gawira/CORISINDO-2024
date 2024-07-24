@@ -11,12 +11,19 @@ public class RobotController : MonoBehaviour
     private int robotID;
     private string category;
     private bool canTakeHit = false; // Flag to check if the bot can take a hit
+    private bool isYelling = false; // Flag for yelling state
+    private bool hasBeenPunished = false; // Flag to check if the user has already been punished
 
     public delegate void DocumentGiveHandler();
     public event DocumentGiveHandler OnDocumentGive;
 
     public BotTeleporter botTeleporter; // Reference to the BotTeleporter script
     public SimpleButton simpleButton; // Reference to the SimpleButton script
+
+    public int HitCount
+    {
+        get { return hitCount; }
+    }
 
     private void Start()
     {
@@ -67,8 +74,7 @@ public class RobotController : MonoBehaviour
         canTakeHit = true;
 
         // Switch to idle animation
-        animator.Play("Idle");
-
+        animator.SetBool("Walk", false);
     }
 
     public IEnumerator MoveToPosition(Vector3 target)
@@ -113,20 +119,32 @@ public class RobotController : MonoBehaviour
         animator.Play("Idle", 0, 0);
         animator.Play("Taking Hit", 0, 0);
 
-        // If the bot has been hit 3 times, move it to the left side
+        // If the bot has been hit 3 times, handle the logic for yelling or moving
         if (hitCount == 3)
         {
-            // Move documents back
-            MoveDocumentsBack();
-            StartCoroutine(simpleButton.HandleMistake());
-            StartCoroutine(MoveToLeftSide());
+            if (isYelling && category == "Rejected")
+            {
+                // If the robot is yelling and should be rejected, don't punish the user
+                MoveDocumentsBack();
+                StartCoroutine(MoveToLeftSideAfterHit());
+            }
+            else
+            {
+                // Otherwise, handle the mistake and move the bot
+                if (!hasBeenPunished)
+                {
+                    StartCoroutine(simpleButton.HandleMistake());
+                }
+                MoveDocumentsBack();
+                StartCoroutine(MoveToLeftSideAfterHit());
+            }
         }
     }
 
-    private IEnumerator MoveToLeftSide()
+    private IEnumerator MoveToLeftSideAfterHit()
     {
         // Wait for the "Taking Hit" animation to finish
-        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+        yield return new WaitForSeconds(GetCurrentAnimationLength("Taking Hit"));
 
         yield return RotateToAngle(90f); // Rotate to face left side
         animator.SetBool("Walk", true);
@@ -155,5 +173,47 @@ public class RobotController : MonoBehaviour
             }
             StartCoroutine(simpleButton.MoveDocumentCoroutine(doc.transform, rb));
         }
+    }
+
+    public void TriggerYelling()
+    {
+        // Set the yelling flag and start the yelling animation
+        isYelling = true;
+        animator.SetBool("Yell", true);
+        StartCoroutine(YellingLoop());
+    }
+
+    public void StopYelling()
+    {
+        // Reset the yelling flag and stop the yelling animation
+        isYelling = false;
+        animator.SetBool("Yell", false);
+    }
+
+    private IEnumerator YellingLoop()
+    {
+        while (isYelling)
+        {
+            animator.Play("Yell", 0, 0);
+            yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+        }
+    }
+
+    public void SetPunished()
+    {
+        hasBeenPunished = true;
+    }
+
+    private float GetCurrentAnimationLength(string animationName)
+    {
+        AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+        foreach (AnimationClip clip in clips)
+        {
+            if (clip.name == animationName)
+            {
+                return clip.length;
+            }
+        }
+        return 0f; // Default to 0 if animation not found
     }
 }
