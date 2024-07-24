@@ -14,6 +14,7 @@ public class RobotController : MonoBehaviour
     private bool isYelling = false; // Flag for yelling state
     private bool hasBeenPunished = false; // Flag to check if the user has already been punished
     private bool isHitBackwardsFinished = false; // Flag to indicate if the "Hit Backwards" animation has finished
+    private bool buttonPressed = false; // Flag to check if the button has been pressed
 
     public delegate void DocumentGiveHandler();
     public event DocumentGiveHandler OnDocumentGive;
@@ -134,6 +135,7 @@ public class RobotController : MonoBehaviour
                 // Otherwise, handle the mistake and move the bot
                 if (!hasBeenPunished)
                 {
+                    hasBeenPunished = true;
                     StartCoroutine(simpleButton.HandleMistake());
                 }
                 MoveDocumentsBack();
@@ -149,11 +151,12 @@ public class RobotController : MonoBehaviour
         isHitBackwardsFinished = false;
 
         // Wait for the "Hit Backwards" animation to finish
-        yield return new WaitUntil(() => isHitBackwardsFinished);
+        yield return new WaitForSeconds(4.6f); // Delay before cleanup
 
         // Perform the cleanup actions after the "Hit Backwards" animation finishes
         if (this != null) // Check if the object is not destroyed
         {
+
             Destroy(gameObject); // Optionally destroy the bot after it moves to the left side
 
             // Spawn a new bot after the current one is destroyed
@@ -217,5 +220,10 @@ public class RobotController : MonoBehaviour
     public void OnHitBackwardsFinished()
     {
         isHitBackwardsFinished = true;
+    }
+
+    public void ButtonPressed()
+    {
+        buttonPressed = true;
     }
 }

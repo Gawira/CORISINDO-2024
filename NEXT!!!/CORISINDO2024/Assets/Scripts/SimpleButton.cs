@@ -24,6 +24,8 @@ public class SimpleButton : MonoBehaviour
     private bool isCooldown = false;
     private bool isPunished = false; // Flag to ensure punishment is only applied once per robot
 
+    private VideoPlayer videoPlayer; // Reference to the VideoPlayer component
+
     private void Start()
     {
         if (blockRenderer == null)
@@ -50,6 +52,16 @@ public class SimpleButton : MonoBehaviour
         {
             Debug.LogError("Darah Biru Indicators are not assigned.");
         }
+
+        // Ensure the Peringatan object has a VideoPlayer component
+        if (peringatan != null)
+        {
+            videoPlayer = peringatan.GetComponent<VideoPlayer>();
+            if (videoPlayer == null)
+            {
+                Debug.LogError("VideoPlayer component is not assigned to Peringatan game object.");
+            }
+        }
     }
 
     public void PressButton()
@@ -69,6 +81,8 @@ public class SimpleButton : MonoBehaviour
             RobotController robotController = teleportedBot.GetComponent<RobotController>();
             if (robotController != null)
             {
+                robotController.ButtonPressed(); // Notify the RobotController that the button has been pressed
+
                 string robotCategory = robotController.GetCategory();
                 bool isMistake = false;
 
@@ -85,7 +99,6 @@ public class SimpleButton : MonoBehaviour
                     if (!isPunished)
                     {
                         isPunished = true;
-                        robotController.SetPunished();
                         StartCoroutine(HandleMistake());
                     }
                 }
@@ -169,7 +182,7 @@ public class SimpleButton : MonoBehaviour
             RobotController robotController = teleportedBot.GetComponent<RobotController>();
             if (robotController != null)
             {
-                if (UnityEngine.Random.value < 1f) // 20% chance to trigger yelling
+                if (UnityEngine.Random.value < 0.2f) // 20% chance to trigger yelling
                 {
                     robotController.TriggerYelling();
                     yield return new WaitUntil(() => robotController.HitCount >= 3);
@@ -286,9 +299,12 @@ public class SimpleButton : MonoBehaviour
 
     public IEnumerator HandleMistake()
     {
-        // Play the warning video
+        Debug.Log("Starting punishment video...");
         peringatan.SetActive(true);
-        yield return new WaitForSeconds(5.2f); // Fixed delay for the video to finish
+
+        yield return new WaitForSeconds(4.5f);
+
+        Debug.Log("Stopping punishment video...");
         peringatan.SetActive(false);
 
         // Disable one "Darah biru" indicator
