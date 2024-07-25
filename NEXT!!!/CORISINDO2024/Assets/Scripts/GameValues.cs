@@ -5,7 +5,7 @@ public class GameValues : MonoBehaviour
 {
     public float timerDuration = 360f; // 6 minutes in seconds
     public string dayTransitionSceneName = "Day Transition";
-    public int startingMoney = 50000;
+    public int startingMoney = 200000;
 
     private float timer;
     private int money;

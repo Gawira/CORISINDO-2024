@@ -156,7 +156,7 @@ public class RobotController : MonoBehaviour
     {
         // Immediately transition to "Hit Backwards" animation
         animator.Play("Hit Backwards", 0, 0);
-        isHitBackwardsFinished = false;
+        isHitBackwardsFinished = true;
 
         // Wait for the "Hit Backwards" animation to finish
         yield return new WaitForSeconds(4.6f); // Delay before cleanup

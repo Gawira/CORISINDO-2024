@@ -5,6 +5,7 @@ using UnityEngine.Video;
 
 public class SimpleButton : MonoBehaviour
 {
+    public GameValues gameValues;
     public Renderer blockRenderer;
     public MoveObject doorScript;
     public Color greenColor = Color.green;
@@ -107,6 +108,12 @@ public class SimpleButton : MonoBehaviour
                     hasPunishedUser = true; // Mark that punishment has been applied
                     StartCoroutine(HandleMistake());
                 }
+                else
+                {
+                    gameValues.AddMoney(100000);
+                    Debug.Log("Money Added. New Balance: " + gameValues.GetMoney());
+                }
+                
 
                 // Move the robot regardless of whether the user made a mistake
                 if (blockRenderer.material.color == greenColor)
@@ -307,6 +314,8 @@ public class SimpleButton : MonoBehaviour
 
     public IEnumerator HandleMistake()
     {
+        gameValues.SubtractMoney(50000);
+        Debug.Log("Money Subtracted. New Balance: " + gameValues.GetMoney());
         Debug.Log("Starting punishment video...");
         peringatan.SetActive(true);
 
