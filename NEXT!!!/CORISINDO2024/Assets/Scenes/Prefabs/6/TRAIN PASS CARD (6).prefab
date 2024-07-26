@@ -59,7 +59,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  - {fileID: -8402768165147377778, guid: 7bc2b49a900d5194c9b9310897b16691, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -105,8 +105,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7bc2b49a900d5194c9b9310897b16691, type: 2}
+  m_sharedMaterial: {fileID: -8402768165147377778, guid: 7bc2b49a900d5194c9b9310897b16691, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -187,12 +187,28 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 879918632441282020, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_text
-      value: EXP:07-2099
+      value: EXP:06-2102
       objectReference: {fileID: 0}
     - target: {fileID: 879918632441282020, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_margin.x
       value: -2.6085815
       objectReference: {fileID: 0}
+    - target: {fileID: 879918632441282020, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 7bc2b49a900d5194c9b9310897b16691, type: 2}
+    - target: {fileID: 879918632441282020, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -8402768165147377778, guid: 7bc2b49a900d5194c9b9310897b16691, type: 2}
+    - target: {fileID: 879918632441282020, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1607294353164385327, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: -8402768165147377778, guid: 7bc2b49a900d5194c9b9310897b16691, type: 2}
     - target: {fileID: 1885208364129005111, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_SelectedEdges.Array.size
       value: 0
@@ -205,6 +221,10 @@ PrefabInstance:
       propertyPath: m_SelectedVertices.Array.size
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3391391672780868966, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: -8402768165147377778, guid: 7bc2b49a900d5194c9b9310897b16691, type: 2}
     - target: {fileID: 4390186227210976165, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_Name
       value: TRAIN PASS CARD (6)
@@ -247,6 +267,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5386045344482597923, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8526030918426912734, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
+      propertyPath: m_fontSize
+      value: 44.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8526030918426912734, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 7bc2b49a900d5194c9b9310897b16691, type: 2}
+    - target: {fileID: 8526030918426912734, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -8402768165147377778, guid: 7bc2b49a900d5194c9b9310897b16691, type: 2}
+    - target: {fileID: 8526030918426912734, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
+      propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
