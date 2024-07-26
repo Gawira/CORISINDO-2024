@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Main menu.unity
     guid: 56abbb7302710574182a6f2655a6dc71
   - enabled: 1
@@ -17,5 +17,14 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Day transision.unity
     guid: 9b5732199875fd14ba822eab114ce5ec
+  - enabled: 1
+    path: Assets/Scenes/Main menu 1.unity
+    guid: b7410423ad3b08e4b84cee385e59c240
+  - enabled: 0
+    path: Assets/Scenes/TIgaBau 1.unity
+    guid: 76b44550d0f42d94a8aca7725e71e5c3
+  - enabled: 1
+    path: Assets/Scenes/TIgaBau.unity
+    guid: 65a094506cd8e6449bd693d6ea474799
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
