@@ -66,6 +66,9 @@ public class SimpleButton : MonoBehaviour
                 Debug.LogError("VideoPlayer component is not assigned to Peringatan game object.");
             }
         }
+
+        gameValues = GameValues.Instance; // Ensure gameValues is correctly assigned
+
     }
 
     public void PressButton()
@@ -107,10 +110,12 @@ public class SimpleButton : MonoBehaviour
                     // Apply punishment if not already punished
                     hasPunishedUser = true; // Mark that punishment has been applied
                     StartCoroutine(HandleMistake());
+                    gameValues.AddMistake(); // Add mistake to GameValues
                 }
                 else
                 {
                     gameValues.AddMoney(100000);
+                    gameValues.AddCorrectDecision();
                     Debug.Log("Money Added. New Balance: " + gameValues.GetMoney());
                 }
                 
@@ -351,6 +356,10 @@ public class SimpleButton : MonoBehaviour
             {
                 // Handle game over logic here
                 Debug.Log("Game Over");
+                if (gameValues != null)
+                {
+                    gameValues.ChangeScene(); // Transition to the Day transition scene
+                }
             }
         }
     }
