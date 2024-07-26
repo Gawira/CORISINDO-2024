@@ -7,17 +7,17 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: kom_VideoMaterial
+  m_Name: New Material 8
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-  m_Parent: {fileID: 2100000, guid: dc07d6e8a61841549abe688ef804b59b, type: 2}
-  m_ModifiedSerializedProperties: 2
+  m_Parent: {fileID: 2100000, guid: 7c5604ef4a2f1b54897b806736ef328a, type: 2}
+  m_ModifiedSerializedProperties: 16
   m_ValidKeywords:
   - _ALPHAPREMULTIPLY_ON
   m_InvalidKeywords: []
-  m_LightmapFlags: 6
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses: []
@@ -26,7 +26,13 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Ints: []
-    m_Floats: []
-    m_Colors: []
+    m_Floats:
+    - _DstBlend: 10
+    - _Glossiness: 1
+    - _Metallic: 0.146
+    - _Mode: 3
+    - _ZWrite: 0
+    m_Colors:
+    - _Color: {r: 0.6662958, g: 0.8773585, b: 0.8603366, a: 0.05882353}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
