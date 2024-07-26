@@ -40,6 +40,7 @@ public class AN_Button : MonoBehaviour
     public float stampSpeed = 0.1f; // Speed of the STAMP MACHINE movement
     public AudioSource leverPullAudioSource; // AudioSource for the lever pull sound
     public AudioSource stampMachineForwardAudioSource; // AudioSource for the stamp machine forward movement sound
+    public AudioSource stampMachineBackwardAudioSource; // AudioSource for the stamp machine backward movement sound
 
     public delegate void LeverPulledHandler(LeverType leverType);
     public event LeverPulledHandler OnLeverPulled;
@@ -50,6 +51,12 @@ public class AN_Button : MonoBehaviour
 
     Animator anim;
     private static bool isCooldown = false; // Static cooldown flag for both levers
+
+    public GameObject stampSmokeEffectPrefab; // Particle effect prefab for smoke when moving down
+    public GameObject stampReturnEffectPrefab; // Particle effect prefab for smoke when moving back
+    public Transform smokeEffectSpawnPoint; // The point where the smoke effect will spawn
+    public Transform[] returnEffectSpawnPoints; // Array of spawn points for the return effect
+    public float afterEffectDuration = 2f; // Duration for the after-effect particle
 
     public delegate void ButtonPressedHandler();
     public event ButtonPressedHandler OnButtonPressed;
@@ -89,6 +96,16 @@ public class AN_Button : MonoBehaviour
         if (stampMachineForwardAudioSource == null)
         {
             Debug.LogError("Stamp Machine Forward AudioSource component is not assigned or found.");
+        }
+
+        if (stampMachineBackwardAudioSource == null && stampMachine != null)
+        {
+            stampMachineBackwardAudioSource = stampMachine.GetComponent<AudioSource>();
+        }
+
+        if (stampMachineBackwardAudioSource == null)
+        {
+            Debug.LogError("Stamp Machine Backward AudioSource component is not assigned or found.");
         }
     }
 
@@ -195,6 +212,7 @@ public class AN_Button : MonoBehaviour
             stampMachineForwardAudioSource.Play();
         }
 
+        // Downward movement
         while (elapsedTime < stampSpeed)
         {
             stampMachine.position = Vector3.Lerp(startPosition, stampEndPosition, (elapsedTime / stampSpeed));
@@ -203,9 +221,40 @@ public class AN_Button : MonoBehaviour
         }
         stampMachine.position = stampEndPosition;
 
-        yield return new WaitForSeconds(1.5f); // Delay before returning to original position
+        // Play the particle effect when the stamp machine reaches the end position
+        GameObject smokeEffect = Instantiate(stampSmokeEffectPrefab, smokeEffectSpawnPoint.position, Quaternion.identity);
+        ParticleSystem smokeParticles = smokeEffect.GetComponent<ParticleSystem>();
+        if (smokeParticles != null)
+        {
+            smokeParticles.Play();
+        }
+
+        yield return new WaitForSeconds(1.4f); // Delay before returning to original position
+                                             // Clean up particle effect
+        Destroy(smokeEffect);
 
         elapsedTime = 0f;
+
+        // Play the stamp machine backward sound
+        if (stampMachineBackwardAudioSource != null)
+        {
+            stampMachineBackwardAudioSource.Play();
+        }
+
+        // Play the particle effect again when the stamp machine starts returning to the original position
+        foreach (Transform spawnPoint in returnEffectSpawnPoints)
+        {
+            GameObject returnEffect = Instantiate(stampReturnEffectPrefab, spawnPoint.position, Quaternion.identity);
+            ParticleSystem returnParticles = returnEffect.GetComponent<ParticleSystem>();
+            if (returnParticles != null)
+            {
+                returnParticles.Play();
+            }
+
+            StartCoroutine(DestroyParticleAfterDuration(returnEffect, afterEffectDuration));
+        }
+
+        // Upward movement
         while (elapsedTime < stampSpeed)
         {
             stampMachine.position = Vector3.Lerp(stampEndPosition, startPosition, (elapsedTime / stampSpeed));
@@ -213,6 +262,12 @@ public class AN_Button : MonoBehaviour
             yield return null;
         }
         stampMachine.position = startPosition;
+    }
+
+    IEnumerator DestroyParticleAfterDuration(GameObject particleEffect, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        Destroy(particleEffect);
     }
 
     IEnumerator LeverCooldown()
