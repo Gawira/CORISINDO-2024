@@ -234,6 +234,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4219133557305565805, guid: 2ee3a6383d5d1aa43aa7ba9ae7d16496, type: 3}
+      propertyPath: m_VersionIndex
+      value: 1575
+      objectReference: {fileID: 0}
+    - target: {fileID: 4219133557305565805, guid: 2ee3a6383d5d1aa43aa7ba9ae7d16496, type: 3}
       propertyPath: m_SelectedEdges.Array.size
       value: 0
       objectReference: {fileID: 0}

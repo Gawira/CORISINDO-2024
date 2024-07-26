@@ -208,6 +208,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -8402768165147377778, guid: 7bc2b49a900d5194c9b9310897b16691, type: 2}
     - target: {fileID: 1885208364129005111, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
+      propertyPath: m_VersionIndex
+      value: 3985
+      objectReference: {fileID: 0}
+    - target: {fileID: 1885208364129005111, guid: 97b81ce52b2961a448b9a0a5b389c365, type: 3}
       propertyPath: m_SelectedEdges.Array.size
       value: 0
       objectReference: {fileID: 0}
