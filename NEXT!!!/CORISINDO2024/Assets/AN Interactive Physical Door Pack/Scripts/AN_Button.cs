@@ -38,6 +38,8 @@ public class AN_Button : MonoBehaviour
     public Transform stampMachine; // Reference to the STAMP MACHINE
     public Vector3 stampEndPosition; // End position for the STAMP MACHINE
     public float stampSpeed = 0.1f; // Speed of the STAMP MACHINE movement
+    public AudioSource leverPullAudioSource; // AudioSource for the lever pull sound
+    public AudioSource stampMachineForwardAudioSource; // AudioSource for the stamp machine forward movement sound
 
     public delegate void LeverPulledHandler(LeverType leverType);
     public event LeverPulledHandler OnLeverPulled;
@@ -66,6 +68,27 @@ public class AN_Button : MonoBehaviour
         if (objectInteractor == null)
         {
             objectInteractor = FindObjectOfType<ObjectInteractor>();
+        }
+
+        // Assign the AudioSource if not assigned in the inspector
+        if (leverPullAudioSource == null)
+        {
+            leverPullAudioSource = GetComponent<AudioSource>();
+        }
+
+        if (leverPullAudioSource == null)
+        {
+            Debug.LogError("Lever Pull AudioSource component is not assigned or found.");
+        }
+
+        if (stampMachineForwardAudioSource == null && stampMachine != null)
+        {
+            stampMachineForwardAudioSource = stampMachine.GetComponent<AudioSource>();
+        }
+
+        if (stampMachineForwardAudioSource == null)
+        {
+            Debug.LogError("Stamp Machine Forward AudioSource component is not assigned or found.");
         }
     }
 
@@ -110,6 +133,7 @@ public class AN_Button : MonoBehaviour
             }
         }
     }
+
     bool IsPassportOnRightSideTable()
     {
         if (objectInteractor != null)
@@ -139,13 +163,18 @@ public class AN_Button : MonoBehaviour
         }
 
         OnLeverPulled?.Invoke(leverType); // Call the OnLeverPulled method when the lever is pulled
+
+        // Play the lever pull sound
+        if (leverPullAudioSource != null)
+        {
+            leverPullAudioSource.Play();
+        }
     }
 
     public void TriggerButtonPressed()
     {
         OnButtonPressed?.Invoke();
     }
-
 
     IEnumerator ChangeLightColor(Color newColor)
     {
@@ -159,6 +188,13 @@ public class AN_Button : MonoBehaviour
     {
         Vector3 startPosition = stampMachine.position;
         float elapsedTime = 0f;
+
+        // Play the stamp machine forward sound
+        if (stampMachineForwardAudioSource != null)
+        {
+            stampMachineForwardAudioSource.Play();
+        }
+
         while (elapsedTime < stampSpeed)
         {
             stampMachine.position = Vector3.Lerp(startPosition, stampEndPosition, (elapsedTime / stampSpeed));
@@ -185,6 +221,7 @@ public class AN_Button : MonoBehaviour
         yield return new WaitForSeconds(999f); // 999 seconds delay till the next target spawn
         isCooldown = false;
     }
+
     public void ResetLever()
     {
         isCooldown = false;
