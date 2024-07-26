@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TIgaBau.unity
     guid: 65a094506cd8e6449bd693d6ea474799
+  - enabled: 1
+    path: Assets/Scenes/Day transision.unity
+    guid: 9b5732199875fd14ba822eab114ce5ec
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
