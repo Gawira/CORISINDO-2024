@@ -29,6 +29,7 @@ public class RobotController : MonoBehaviour
 
     private void Start()
     {
+        GameValues.Instance.RobotSpawned(); // Notify that a robot has spawned
         StartCoroutine(PerformActions());
     }
 
@@ -81,7 +82,6 @@ public class RobotController : MonoBehaviour
         // Switch to idle animation
         animator.SetBool("Walk", false);
     }
-
 
     public IEnumerator MoveToPosition(Vector3 target)
     {
@@ -150,8 +150,6 @@ public class RobotController : MonoBehaviour
         }
     }
 
-
-
     private IEnumerator PlayHitBackwardsAnimation()
     {
         // Immediately transition to "Hit Backwards" animation
@@ -164,13 +162,22 @@ public class RobotController : MonoBehaviour
         // Perform the cleanup actions after the "Hit Backwards" animation finishes
         if (this != null) // Check if the object is not destroyed
         {
-
             Destroy(gameObject); // Optionally destroy the bot after it moves to the left side
 
-            // Spawn a new bot after the current one is destroyed
-            if (botTeleporter != null)
+            GameValues.Instance.RobotDestroyed(); // Notify that the robot has been destroyed
+
+            // Check if timer ended, if so, trigger scene change
+            if (GameValues.Instance.GetRemainingTime() <= 0)
             {
-                botTeleporter.SpawnNewBot();
+                GameValues.Instance.ChangeScene();
+            }
+            else
+            {
+                // Spawn a new bot after the current one is destroyed
+                if (botTeleporter != null)
+                {
+                    botTeleporter.SpawnNewBot();
+                }
             }
 
             // Reset button and lever states

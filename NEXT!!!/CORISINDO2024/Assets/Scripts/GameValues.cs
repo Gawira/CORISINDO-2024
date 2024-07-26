@@ -12,9 +12,12 @@ public class GameValues : MonoBehaviour
     private int money;
     private int mistakesCount = 0; // Track the number of mistakes
     private int correctDecisions = 0; // Track the number of correct decisions
+    private bool timerEnded = false; // Flag to indicate the timer has ended
 
     private string DayTransision = "Day transision";
-    private int day = 0; // Track the current day
+    private int day = 1; // Track the current day
+
+    public bool robotActive = false; // Flag to track if a robot is currently active
 
     void Awake()
     {
@@ -50,14 +53,19 @@ public class GameValues : MonoBehaviour
             Debug.Log("Timer: " + timer);
             if (timer <= 0)
             {
-                ChangeScene();
+                timerEnded = true;
+                if (!robotActive)
+                {
+                    ChangeScene();
+                }
             }
         }
     }
 
     public void ResetTimer()
     {
-        timer = 35f;
+        timer = 10f;
+        timerEnded = false;
     }
 
     public void ChangeScene()
@@ -111,5 +119,19 @@ public class GameValues : MonoBehaviour
     public int GetDay()
     {
         return day;
+    }
+
+    public void RobotSpawned()
+    {
+        robotActive = true;
+    }
+
+    public void RobotDestroyed()
+    {
+        robotActive = false;
+        if (timerEnded)
+        {
+            ChangeScene();
+        }
     }
 }
