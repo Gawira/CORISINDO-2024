@@ -22,6 +22,8 @@ public class RobotController : MonoBehaviour
     public BotTeleporter botTeleporter; // Reference to the BotTeleporter script
     public SimpleButton simpleButton; // Reference to the SimpleButton script
 
+    private ObjectInteractor objectInteractor; // Reference to ObjectInteractor script
+
     public int HitCount
     {
         get { return hitCount; }
@@ -31,6 +33,8 @@ public class RobotController : MonoBehaviour
     {
         GameValues.Instance.RobotSpawned(); // Notify that a robot has spawned
         StartCoroutine(PerformActions());
+
+        objectInteractor = FindObjectOfType<ObjectInteractor>(); // Find and assign ObjectInteractor reference
     }
 
     public void SetID(int id, string category)
@@ -120,6 +124,9 @@ public class RobotController : MonoBehaviour
 
         // Increment the hit counter
         hitCount++;
+
+        // Play the hit sound using the ObjectInteractor's AudioSource
+        objectInteractor.PlayHitSound();
 
         // Force transition to idle before restarting "Taking Hit" animation
         animator.Play("Idle", 0, 0);
