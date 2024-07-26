@@ -1,7 +1,6 @@
-using System;
-using System.Collections;
-using TMPro;
 using UnityEngine;
+using System.Collections;
+using System;
 using UnityEngine.Video;
 
 public class SimpleButton : MonoBehaviour
@@ -29,7 +28,6 @@ public class SimpleButton : MonoBehaviour
     private VideoPlayer videoPlayer; // Reference to the VideoPlayer component
     public bool hasPunishedUser = false; // Flag to ensure the user is punished only once per robot
     public bool initialDecisionCorrect = false; // Flag to track if the initial decision was correct
-    public AudioSource buttonPressAudioSource; // AudioSource for button press sound
 
     private void Start()
     {
@@ -69,12 +67,6 @@ public class SimpleButton : MonoBehaviour
         }
 
         gameValues = GameValues.Instance; // Ensure gameValues is correctly assigned
-
-        // Ensure the AudioSource is assigned
-        if (buttonPressAudioSource == null)
-        {
-            buttonPressAudioSource = GetComponent<AudioSource>();
-        }
     }
 
     public void PressButton()
@@ -139,12 +131,6 @@ public class SimpleButton : MonoBehaviour
                 }
 
                 StartCoroutine(CooldownCoroutine());
-
-                // Play the button press sound
-                if (buttonPressAudioSource != null)
-                {
-                    buttonPressAudioSource.Play();
-                }
             }
         }
     }
