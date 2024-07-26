@@ -12,12 +12,10 @@ public class GameValues : MonoBehaviour
     private int money;
     private int mistakesCount = 0; // Track the number of mistakes
     private int correctDecisions = 0; // Track the number of correct decisions
-    private bool timerEnded = false; // Flag to indicate the timer has ended
-
-    private string DayTransision = "Day transision";
     private int day = 1; // Track the current day
+    private bool robotActive = false; // Flag to track if a robot is currently active
 
-    public bool robotActive = false; // Flag to track if a robot is currently active
+    public bool RobotActive { get { return robotActive; } }
 
     void Awake()
     {
@@ -53,27 +51,47 @@ public class GameValues : MonoBehaviour
             Debug.Log("Timer: " + timer);
             if (timer <= 0)
             {
-                timerEnded = true;
-                if (!robotActive)
-                {
-                    ChangeScene();
-                }
+                Debug.Log("Timer ended, checking robot status...");
+                CheckRobotStatus();
             }
         }
     }
 
     public void ResetTimer()
     {
-        timer = 10f;
-        timerEnded = false;
+        timer = 3f;
+    }
+
+    private void CheckRobotStatus()
+    {
+        if (!robotActive)
+        {
+            Debug.Log("No robot active, transitioning scene...");
+            StartCoroutine(SceneTransition.Instance.FadeAndLoadScene(dayTransitionSceneName));
+        }
+    }
+
+    public void RobotSpawned()
+    {
+        robotActive = true;
+    }
+
+    public void RobotDestroyed()
+    {
+        robotActive = false;
+        Debug.Log("RobotDestroyed called");
+        if (timer <= 0)
+        {
+            CheckRobotStatus();
+        }
     }
 
     public void ChangeScene()
     {
-        Debug.Log("Changing scene to: " + DayTransision);
+        Debug.Log("Changing scene to: " + dayTransitionSceneName);
         PlayerPrefs.SetInt("TotalMoney", money); // Save the total money
         day++;
-        SceneManager.LoadScene(DayTransision);
+        StartCoroutine(SceneTransition.Instance.FadeAndLoadScene(dayTransitionSceneName));
     }
 
     public int GetMoney()
@@ -119,19 +137,5 @@ public class GameValues : MonoBehaviour
     public int GetDay()
     {
         return day;
-    }
-
-    public void RobotSpawned()
-    {
-        robotActive = true;
-    }
-
-    public void RobotDestroyed()
-    {
-        robotActive = false;
-        if (timerEnded)
-        {
-            ChangeScene();
-        }
     }
 }

@@ -16,7 +16,6 @@ public class MoveObject : MonoBehaviour
     {
         // Inisialisasi posisi awal objek
         startXPosition = transform.position.x;
-        Debug.Log("Posisi x awal: " + startXPosition);
     }
 
     void Update()
@@ -30,14 +29,12 @@ public class MoveObject : MonoBehaviour
             // Lerp posisi x objek dari startXPosition ke endXPosition
             float newXPosition = Mathf.Lerp(startXPosition, endXPosition, elapsedTime / duration);
             transform.position = new Vector3(newXPosition, transform.position.y, transform.position.z);
-            Debug.Log("Animating... Posisi saat ini: " + transform.position);
 
             // Hentikan animasi ketika durasi tercapai
             if (elapsedTime >= duration)
             {
                 transform.position = new Vector3(endXPosition, transform.position.y, transform.position.z); // Pastikan posisi objek tepat di endXPosition
                 isAnimating = false; // Hentikan animasi
-                Debug.Log("Animasi berakhir. Posisi akhir: " + transform.position);
 
                 // Mulai kembalikan objek ke posisi semula setelah durasi tertentu
                 StartCoroutine(KembaliKePosisiSemula());
@@ -70,12 +67,10 @@ public class MoveObject : MonoBehaviour
             returnElapsedTime += Time.deltaTime;
             float newXPosition = Mathf.Lerp(returnStartXPosition, startXPosition, returnElapsedTime / duration);
             transform.position = new Vector3(newXPosition, transform.position.y, transform.position.z);
-            Debug.Log("Kembali... Posisi saat ini: " + transform.position);
             yield return null;
         }
 
         transform.position = new Vector3(startXPosition, transform.position.y, transform.position.z); // Pastikan posisi objek tepat di startXPosition
         isReturning = false; // Hentikan pengembalian
-        Debug.Log("Kembali berakhir. Posisi akhir: " + transform.position);
     }
 }

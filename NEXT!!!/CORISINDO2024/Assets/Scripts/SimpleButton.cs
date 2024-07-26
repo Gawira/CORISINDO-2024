@@ -29,7 +29,6 @@ public class SimpleButton : MonoBehaviour
     public bool hasPunishedUser = false; // Flag to ensure the user is punished only once per robot
     public bool initialDecisionCorrect = false; // Flag to track if the initial decision was correct
 
-
     private void Start()
     {
         if (blockRenderer == null)
@@ -68,7 +67,6 @@ public class SimpleButton : MonoBehaviour
         }
 
         gameValues = GameValues.Instance; // Ensure gameValues is correctly assigned
-
     }
 
     public void PressButton()
@@ -118,7 +116,6 @@ public class SimpleButton : MonoBehaviour
                     gameValues.AddCorrectDecision();
                     Debug.Log("Money Added. New Balance: " + gameValues.GetMoney());
                 }
-                
 
                 // Move the robot regardless of whether the user made a mistake
                 if (blockRenderer.material.color == greenColor)
@@ -137,9 +134,6 @@ public class SimpleButton : MonoBehaviour
             }
         }
     }
-
-
-
 
     private void TryOpenDoor()
     {
@@ -185,8 +179,8 @@ public class SimpleButton : MonoBehaviour
                 robotController.animator.SetBool("Walk", false);
                 Destroy(robotController.gameObject); // Destroy the bot after it reaches the target position
 
-                // Spawn a new bot after the current one is destroyed
-                botTeleporter.SpawnNewBot();
+                Debug.Log("Robot destroyed");
+                GameValues.Instance.RobotDestroyed(); // Notify that the robot has been destroyed
 
                 // Reset button and lever states
                 ResetButtonAndLever();
@@ -218,8 +212,8 @@ public class SimpleButton : MonoBehaviour
                 robotController.animator.SetBool("Walk", false);
                 Destroy(robotController.gameObject); // Destroy the bot after it reaches the target position
 
-                // Spawn a new bot after the current one is destroyed
-                botTeleporter.SpawnNewBot();
+                Debug.Log("Robot destroyed");
+                GameValues.Instance.RobotDestroyed(); // Notify that the robot has been destroyed
 
                 // Reset button and lever states
                 ResetButtonAndLever();

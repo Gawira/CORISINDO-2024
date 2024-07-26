@@ -164,28 +164,14 @@ public class RobotController : MonoBehaviour
         {
             Destroy(gameObject); // Optionally destroy the bot after it moves to the left side
 
-            GameValues.Instance.RobotDestroyed(); // Notify that the robot has been destroyed
-
-            // Check if timer ended, if so, trigger scene change
-            if (GameValues.Instance.GetRemainingTime() <= 0)
-            {
-                GameValues.Instance.ChangeScene();
-            }
-            else
-            {
-                // Spawn a new bot after the current one is destroyed
-                if (botTeleporter != null)
-                {
-                    botTeleporter.SpawnNewBot();
-                }
-            }
-
             // Reset button and lever states
             if (simpleButton != null)
             {
                 simpleButton.ResetButtonAndLever();
             }
         }
+
+        GameValues.Instance.RobotDestroyed(); // Notify that the robot has been destroyed
     }
 
     private void MoveDocumentsBack()
