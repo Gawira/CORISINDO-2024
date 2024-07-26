@@ -38,6 +38,11 @@ public class AN_Button : MonoBehaviour
     public Transform stampMachine; // Reference to the STAMP MACHINE
     public Vector3 stampEndPosition; // End position for the STAMP MACHINE
     public float stampSpeed = 0.1f; // Speed of the STAMP MACHINE movement
+<<<<<<< HEAD
+=======
+    public AudioSource leverPullAudioSource; // AudioSource for the lever pull sound
+    public AudioSource stampMachineForwardAudioSource; // AudioSource for the stamp machine forward movement sound
+>>>>>>> parent of 07f9b7b (particle effect stamp)
 
     public delegate void LeverPulledHandler(LeverType leverType);
     public event LeverPulledHandler OnLeverPulled;
@@ -67,6 +72,30 @@ public class AN_Button : MonoBehaviour
         {
             objectInteractor = FindObjectOfType<ObjectInteractor>();
         }
+<<<<<<< HEAD
+=======
+
+        // Assign the AudioSource if not assigned in the inspector
+        if (leverPullAudioSource == null)
+        {
+            leverPullAudioSource = GetComponent<AudioSource>();
+        }
+
+        if (leverPullAudioSource == null)
+        {
+            Debug.LogError("Lever Pull AudioSource component is not assigned or found.");
+        }
+
+        if (stampMachineForwardAudioSource == null && stampMachine != null)
+        {
+            stampMachineForwardAudioSource = stampMachine.GetComponent<AudioSource>();
+        }
+
+        if (stampMachineForwardAudioSource == null)
+        {
+            Debug.LogError("Stamp Machine Forward AudioSource component is not assigned or found.");
+        }
+>>>>>>> parent of 07f9b7b (particle effect stamp)
     }
 
     void Update()
@@ -159,6 +188,16 @@ public class AN_Button : MonoBehaviour
     {
         Vector3 startPosition = stampMachine.position;
         float elapsedTime = 0f;
+<<<<<<< HEAD
+=======
+
+        // Play the stamp machine forward sound
+        if (stampMachineForwardAudioSource != null)
+        {
+            stampMachineForwardAudioSource.Play();
+        }
+
+>>>>>>> parent of 07f9b7b (particle effect stamp)
         while (elapsedTime < stampSpeed)
         {
             stampMachine.position = Vector3.Lerp(startPosition, stampEndPosition, (elapsedTime / stampSpeed));
