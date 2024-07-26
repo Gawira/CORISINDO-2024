@@ -1,8 +1,9 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
 
 public class ObjectInteractor : MonoBehaviour
 {
+
     public CameraSwitcher cameraSwitcher;
     public Camera playerCamera;
     public Camera topDownCamera;
@@ -14,9 +15,6 @@ public class ObjectInteractor : MonoBehaviour
     public float zoomDuration = 0.5f;
     public float attackDuration = 0.5f; // Duration of the attack animation
     public float equipDelay = 0.8f; // Delay before the user can attack after equipping
-
-    public AudioSource attackAudioSource; // AudioSource for the bat attack sound
-    public AudioSource hitAudioSource; // AudioSource for the hit sound
 
     private GameObject selectedObject;
     private GameObject passportObject; // Reference to the passport object
@@ -210,7 +208,6 @@ public class ObjectInteractor : MonoBehaviour
             StartCoroutine(PerformBatAttack());
         }
     }
-
     void LogHitObjectHierarchy(GameObject hitObject)
     {
         Debug.Log("Hit object hierarchy:");
@@ -227,7 +224,6 @@ public class ObjectInteractor : MonoBehaviour
             Debug.Log(component.GetType().Name);
         }
     }
-
     void SelectObject(GameObject obj, Vector3 hitPoint)
     {
         if (selectedObject != null && selectedObject != obj)
@@ -463,10 +459,11 @@ public class ObjectInteractor : MonoBehaviour
         Vector3 attackEndPos = new Vector3(attackStartPos.x, attackStartPos.y, attackStartPos.z + 0.5f); // Swing forward on the Z axis
         Quaternion attackEndRot = Quaternion.Euler(attackStartRot.eulerAngles.x + 80f, attackStartRot.eulerAngles.y - 40f, attackStartRot.eulerAngles.z);
 
-        int steps = 20; // Increase the number of steps for smoother animation
+        float pullBackDuration = 0.05f; // Faster pull-back
+        float swingDuration = 0.1f; // Fast swing
+        float returnDuration = 0.1f; // Return to original position
 
-        // Play the attack sound
-        attackAudioSource.Play();
+        int steps = 20; // Increase the number of steps for smoother animation
 
         // Pull-back phase
         for (int i = 0; i < steps; i++)
@@ -508,11 +505,6 @@ public class ObjectInteractor : MonoBehaviour
         bat.transform.localRotation = attackStartRot;
 
         isAnimating = false;
-    }
-
-    public void PlayHitSound()
-    {
-        hitAudioSource.Play();
     }
 
     public void MovePassportToWorkstationTable()
