@@ -18,6 +18,11 @@ public class UIInteraction : MonoBehaviour
         popupHTP.SetActive(true);
         popupHTP1.SetActive(true);
         popupHTP2.SetActive(true);
+        
+    }
+
+    public void ShowPopupSetting()
+    {
         popupSetting.SetActive(true);
         popupSetting1.SetActive(true);
         popupSetting2.SetActive(true);
