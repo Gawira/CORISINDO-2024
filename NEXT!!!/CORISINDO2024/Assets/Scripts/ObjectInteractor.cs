@@ -37,6 +37,8 @@ public class ObjectInteractor : MonoBehaviour
     private bool isCooldown = false; // Cooldown for spamming prevention
 
     private int viewState = 0; // -1 for left view, 0 for main view, 1 for right view
+    private bool isRaycastEnabled = true; // Flag to control raycasting
+
 
     void Start()
     {
@@ -50,7 +52,7 @@ public class ObjectInteractor : MonoBehaviour
 
     void Update()
     {
-        if (isAnimating || isCooldown)
+        if (isAnimating || isCooldown || !isRaycastEnabled)
         {
             return;
         }
@@ -611,5 +613,11 @@ public class ObjectInteractor : MonoBehaviour
     void RotateAround(GameObject obj, Vector3 point, Vector3 axis, float angle)
     {
         obj.transform.RotateAround(point, axis, angle);
+    }
+
+    // Method to enable or disable raycasting
+    public void SetRaycastEnabled(bool enabled)
+    {
+        isRaycastEnabled = enabled;
     }
 }

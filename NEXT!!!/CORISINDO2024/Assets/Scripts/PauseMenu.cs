@@ -1,10 +1,20 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PauseMenu : MonoBehaviour
 {
-    public GameObject pauseMenuUI;  // Referensi ke UI Pause Menu
-    public static bool isPaused = false;  // Status permainan (pause atau tidak)
+    public GameObject pauseMenuUI;  // Reference to the Pause Menu UI
+    public static bool isPaused = false;  // Game state (paused or not)
+    public ObjectInteractor objectInteractor; // Reference to the ObjectInteractor script
+
+    void Start()
+    {
+        if (objectInteractor == null)
+        {
+            Debug.LogError("ObjectInteractor not assigned in the inspector.");
+        }
+    }
 
     void Update()
     {
@@ -24,31 +34,39 @@ public class PauseMenu : MonoBehaviour
     public void Resume()
     {
         pauseMenuUI.SetActive(false);
-        Time.timeScale = 1f;  // Lanjutkan permainan
+        if (objectInteractor != null)
+        {
+            objectInteractor.SetRaycastEnabled(true); // Enable raycasting
+        }
+        Time.timeScale = 1f;  // Resume the game
         isPaused = false;
     }
 
     void Pause()
     {
         pauseMenuUI.SetActive(true);
-        Time.timeScale = 0f;  // Hentikan permainan
+        if (objectInteractor != null)
+        {
+            objectInteractor.SetRaycastEnabled(false); // Disable raycasting
+        }
+        Time.timeScale = 0f;  // Pause the game
         isPaused = true;
     }
 
     public void LoadMainMenu()
     {
-        Time.timeScale = 1f;  // Lanjutkan waktu sebelum kembali ke menu utama
-        SceneManager.LoadScene("Main menu FIX");  // Ganti "MainMenu" dengan nama scene menu utama Anda
+        Time.timeScale = 1f;  // Resume time before returning to the main menu
+        SceneManager.LoadScene("Main menu FIX");  // Change "MainMenu" to your main menu scene name
     }
 
     public void LoadSettings()
     {
-        // Tambahkan kode untuk memuat menu pengaturan
+        // Add code to load the settings menu
     }
 
     public void LoadHowToPlay()
     {
-        // Tambahkan kode untuk memuat menu cara bermain
+        // Add code to load the how-to-play menu
     }
 
     public void QuitGame()
