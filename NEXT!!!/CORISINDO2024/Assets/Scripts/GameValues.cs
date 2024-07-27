@@ -69,7 +69,7 @@ public class GameValues : MonoBehaviour
 
     public void ResetTimer()
     {
-        timer = 10f;
+        timer = 360f;
     }
 
     private void CheckRobotStatus()
@@ -164,5 +164,18 @@ public class GameValues : MonoBehaviour
     public int GetDay()
     {
         return day;
+    }
+
+    public void ResetGameValues()
+    {
+        day = 0;
+        money = startMoney;
+        mistakesCount = 0;
+        correctDecisions = 0;
+        robotActive = false;
+        transitionPending = false;
+        ResetTimer();
+
+        Debug.Log("Game values reset successfully.");
     }
 }
