@@ -60,4 +60,8 @@ public class SceneTransition : MonoBehaviour
         yield return StartCoroutine(Fade(0f));
     }
 
+    public void LoadScene(string sceneName)
+    {
+        StartCoroutine(FadeAndLoadScene(sceneName));
+    }
 }
