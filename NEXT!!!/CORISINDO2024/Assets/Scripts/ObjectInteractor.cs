@@ -84,6 +84,16 @@ public class ObjectInteractor : MonoBehaviour
                 }
             }
 
+            // Add rotation functionality
+            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+            {
+                float rotationSpeed = 100f; // Adjust rotation speed as needed
+                float rotationInput = Input.GetAxis("Mouse X") * rotationSpeed * Time.deltaTime;
+
+                Vector3 center = CalculateCenter(selectedObject);
+                RotateAround(selectedObject, center, Vector3.up, -rotationInput);
+            }
+
             return;
         }
 
@@ -230,46 +240,53 @@ public class ObjectInteractor : MonoBehaviour
 
     void SelectObject(GameObject obj, Vector3 hitPoint)
     {
-        if (selectedObject != null && selectedObject != obj)
+        if (obj.CompareTag("Document"))
         {
-            ImmediateDeselectFromZoom();
+            if (selectedObject != null && selectedObject != obj)
+            {
+                ImmediateDeselectFromZoom();
+            }
+
+            selectedObject = obj;
+            Rigidbody rb = selectedObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+            }
+
+            Vector3 position = selectedObject.transform.position;
+            position.y += liftAmount;
+            selectedObject.transform.position = position;
+
+            offset = selectedObject.transform.position - hitPoint;
+
+            // Store original position, rotation, and scale of the selected object
+            originalPosition = selectedObject.transform.position;
+            originalRotation = selectedObject.transform.rotation;
+            originalScale = selectedObject.transform.localScale;
         }
-
-        selectedObject = obj;
-        Rigidbody rb = selectedObject.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.isKinematic = true;
-        }
-
-        Vector3 position = selectedObject.transform.position;
-        position.y += liftAmount;
-        selectedObject.transform.position = position;
-
-        offset = selectedObject.transform.position - hitPoint;
-
-        // Store original position, rotation, and scale of the selected object
-        originalPosition = selectedObject.transform.position;
-        originalRotation = selectedObject.transform.rotation;
-        originalScale = selectedObject.transform.localScale;
     }
+
 
     void MoveSelectedObject(Camera activeCamera)
     {
-        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        if (selectedObject != null && selectedObject.CompareTag("Document"))
         {
-            Vector3 newPos = selectedObject.transform.position;
-            newPos.x = hit.point.x + offset.x;
-            newPos.z = hit.point.z + offset.z;
-            selectedObject.transform.position = newPos;
-            Debug.Log("Document dragged to new position: " + newPos);
+            Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Vector3 newPos = selectedObject.transform.position;
+                newPos.x = hit.point.x + offset.x;
+                newPos.z = hit.point.z + offset.z;
+                selectedObject.transform.position = newPos;
+                Debug.Log("Document dragged to new position: " + newPos);
+            }
         }
     }
 
     void DeselectObject()
     {
-        if (selectedObject != null)
+        if (selectedObject != null && selectedObject.CompareTag("Document"))
         {
             Rigidbody rb = selectedObject.GetComponent<Rigidbody>();
             if (rb != null)
@@ -572,5 +589,27 @@ public class ObjectInteractor : MonoBehaviour
             return distance < 0.2f; // Adjust this threshold as needed
         }
         return false;
+    }
+
+    Vector3 CalculateCenter(GameObject obj)
+    {
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0)
+        {
+            return obj.transform.position;
+        }
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+        {
+            bounds.Encapsulate(renderers[i].bounds);
+        }
+
+        return bounds.center;
+    }
+
+    void RotateAround(GameObject obj, Vector3 point, Vector3 axis, float angle)
+    {
+        obj.transform.RotateAround(point, axis, angle);
     }
 }
