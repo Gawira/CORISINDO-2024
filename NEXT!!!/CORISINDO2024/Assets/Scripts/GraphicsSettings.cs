@@ -13,36 +13,45 @@ public class GraphicsSettings : MonoBehaviour
 
     public PostProcessProfile postProcessProfile;
 
-    private void Start()
+    public void OnEnable()
     {
-        // Load saved settings
         LoadSettings();
-
-        // Add listeners to the toggles
         postProcessingToggle.onValueChanged.AddListener(delegate { TogglePostProcessing(postProcessingToggle.isOn); });
         motionBlurToggle.onValueChanged.AddListener(delegate { ToggleMotionBlur(motionBlurToggle.isOn); });
         vignetteToggle.onValueChanged.AddListener(delegate { ToggleVignette(vignetteToggle.isOn); });
         ambientOcclusionToggle.onValueChanged.AddListener(delegate { ToggleAmbientOcclusion(ambientOcclusionToggle.isOn); });
         colorGradingToggle.onValueChanged.AddListener(delegate { ToggleColorGrading(colorGradingToggle.isOn); });
         bloomToggle.onValueChanged.AddListener(delegate { ToggleBloom(bloomToggle.isOn); });
+    }
 
-        // Ensure the initial state of the toggles is correct
-        SetGraphicsTogglesInteractable(postProcessingToggle.isOn);
+    private void OnDisable()
+    {
+        postProcessingToggle.onValueChanged.RemoveAllListeners();
+        motionBlurToggle.onValueChanged.RemoveAllListeners();
+        vignetteToggle.onValueChanged.RemoveAllListeners();
+        ambientOcclusionToggle.onValueChanged.RemoveAllListeners();
+        colorGradingToggle.onValueChanged.RemoveAllListeners();
+        bloomToggle.onValueChanged.RemoveAllListeners();
+    }
+
+    private void LoadSettings()
+    {
+        bool postProcessingEnabled = PlayerPrefs.GetInt("PostProcessing", 1) == 1;
+        postProcessingToggle.isOn = postProcessingEnabled;
+
+        motionBlurToggle.isOn = PlayerPrefs.GetInt("MotionBlur", 1) == 1 && postProcessingEnabled;
+        vignetteToggle.isOn = PlayerPrefs.GetInt("Vignette", 1) == 1 && postProcessingEnabled;
+        ambientOcclusionToggle.isOn = PlayerPrefs.GetInt("AmbientOcclusion", 1) == 1 && postProcessingEnabled;
+        colorGradingToggle.isOn = PlayerPrefs.GetInt("ColorGrading", 1) == 1 && postProcessingEnabled;
+        bloomToggle.isOn = PlayerPrefs.GetInt("Bloom", 1) == 1 && postProcessingEnabled;
+
+        ApplySettings();
     }
 
     private void TogglePostProcessing(bool isOn)
     {
         SetGraphicsTogglesInteractable(isOn);
-
-        if (isOn)
-        {
-            ApplySettings();
-        }
-        else
-        {
-            DisableAllPostProcessingEffects();
-        }
-
+        ApplySettings();
         SaveSettings();
     }
 
@@ -99,30 +108,7 @@ public class GraphicsSettings : MonoBehaviour
         PlayerPrefs.SetInt("AmbientOcclusion", ambientOcclusionToggle.isOn ? 1 : 0);
         PlayerPrefs.SetInt("ColorGrading", colorGradingToggle.isOn ? 1 : 0);
         PlayerPrefs.SetInt("Bloom", bloomToggle.isOn ? 1 : 0);
-        PlayerPrefs.Save(); // Ensure PlayerPrefs are saved
-    }
-
-    private void LoadSettings()
-    {
-        bool postProcessingEnabled = PlayerPrefs.GetInt("PostProcessing", 1) == 1;
-        postProcessingToggle.isOn = postProcessingEnabled;
-
-        motionBlurToggle.isOn = PlayerPrefs.GetInt("MotionBlur", 1) == 1 && postProcessingEnabled;
-        vignetteToggle.isOn = PlayerPrefs.GetInt("Vignette", 1) == 1 && postProcessingEnabled;
-        ambientOcclusionToggle.isOn = PlayerPrefs.GetInt("AmbientOcclusion", 1) == 1 && postProcessingEnabled;
-        colorGradingToggle.isOn = PlayerPrefs.GetInt("ColorGrading", 1) == 1 && postProcessingEnabled;
-        bloomToggle.isOn = PlayerPrefs.GetInt("Bloom", 1) == 1 && postProcessingEnabled;
-
-        ApplySettings();
-    }
-
-    private void SetGraphicsTogglesInteractable(bool isInteractable)
-    {
-        motionBlurToggle.interactable = isInteractable;
-        vignetteToggle.interactable = isInteractable;
-        ambientOcclusionToggle.interactable = isInteractable;
-        colorGradingToggle.interactable = isInteractable;
-        bloomToggle.interactable = isInteractable;
+        PlayerPrefs.Save();
     }
 
     private void ApplySettings()
@@ -139,6 +125,15 @@ public class GraphicsSettings : MonoBehaviour
         {
             DisableAllPostProcessingEffects();
         }
+    }
+
+    private void SetGraphicsTogglesInteractable(bool isInteractable)
+    {
+        motionBlurToggle.interactable = isInteractable;
+        vignetteToggle.interactable = isInteractable;
+        ambientOcclusionToggle.interactable = isInteractable;
+        colorGradingToggle.interactable = isInteractable;
+        bloomToggle.interactable = isInteractable;
     }
 
     private void DisableAllPostProcessingEffects()

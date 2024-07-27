@@ -11,9 +11,8 @@ public class AudioSettings : MonoBehaviour
     [SerializeField] private TextMeshProUGUI sfxVolumeText;
     [SerializeField] private TextMeshProUGUI musicVolumeText;
 
-    private void Start()
+    public void OnEnable()
     {
-        // Load values from PlayerPrefs
         overallVolumeSlider.value = PlayerPrefs.GetFloat("OverallVolume", 1f);
         sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
         musicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
@@ -27,6 +26,25 @@ public class AudioSettings : MonoBehaviour
         musicVolumeSlider.onValueChanged.AddListener(delegate { UpdateMusicVolume(); });
     }
 
+
+    private void OnDisable()
+    {
+        overallVolumeSlider.onValueChanged.RemoveAllListeners();
+        sfxVolumeSlider.onValueChanged.RemoveAllListeners();
+        musicVolumeSlider.onValueChanged.RemoveAllListeners();
+    }
+
+    private void LoadSettings()
+    {
+        overallVolumeSlider.value = PlayerPrefs.GetFloat("OverallVolume", 1f);
+        sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        musicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
+
+        UpdateOverallVolume();
+        UpdateSFXVolume();
+        UpdateMusicVolume();
+    }
+
     private void UpdateOverallVolume()
     {
         float volume = overallVolumeSlider.value;
@@ -36,13 +54,12 @@ public class AudioSettings : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+
     private void UpdateSFXVolume()
     {
         float volume = sfxVolumeSlider.value;
         sfxVolumeText.text = Mathf.RoundToInt(volume * 100).ToString();
         AudioManager.Instance.SetVolume(volume, AudioManager.AudioChannel.SFX);
-        PlayerPrefs.SetFloat("SFXVolume", volume);
-        PlayerPrefs.Save();
     }
 
     private void UpdateMusicVolume()
@@ -50,7 +67,5 @@ public class AudioSettings : MonoBehaviour
         float volume = musicVolumeSlider.value;
         musicVolumeText.text = Mathf.RoundToInt(volume * 100).ToString();
         AudioManager.Instance.SetVolume(volume, AudioManager.AudioChannel.Music);
-        PlayerPrefs.SetFloat("MusicVolume", volume);
-        PlayerPrefs.Save();
     }
 }

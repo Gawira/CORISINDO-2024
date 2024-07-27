@@ -14,6 +14,7 @@ public class CameraMovement : MonoBehaviour
     {
         // Set posisi awal kamera berdasarkan posisi startPositionObject
         transform.position = startPositionObject.position;
+        UpdateCanvasSettings();
     }
 
     void Update()
@@ -39,6 +40,9 @@ public class CameraMovement : MonoBehaviour
         otherCamera.gameObject.SetActive(true);
         otherCamera.GetComponent<CameraMovement>().StartMoving();
 
+        // Update settings in the newly activated camera's canvas
+        otherCamera.GetComponent<CameraMovement>().UpdateCanvasSettings();
+
         // Reset posisi dan waktu untuk pergerakan berikutnya
         transform.position = startPositionObject.position;
         moveTimeElapsed = 0.0f;
@@ -50,5 +54,21 @@ public class CameraMovement : MonoBehaviour
     public void StartMoving()
     {
         movingLeft = true;
+    }
+
+    public void UpdateCanvasSettings()
+    {
+        AudioSettings audioSettings = GetComponentInChildren<AudioSettings>();
+        GraphicsSettings graphicsSettings = GetComponentInChildren<GraphicsSettings>();
+
+        if (audioSettings != null)
+        {
+            audioSettings.OnEnable(); // Reload and apply settings
+        }
+
+        if (graphicsSettings != null)
+        {
+            graphicsSettings.OnEnable(); // Reload and apply settings
+        }
     }
 }
