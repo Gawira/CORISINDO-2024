@@ -18,10 +18,7 @@ public class CameraMovement : MonoBehaviour
 
     void Update()
     {
-        // Debugging log
-        Debug.Log("Camera Position: " + transform.position.x);
-        Debug.Log("Moving Left: " + movingLeft);
-        Debug.Log("Move Time Elapsed: " + moveTimeElapsed);
+
 
         // Gerakkan kamera
         if (movingLeft)
