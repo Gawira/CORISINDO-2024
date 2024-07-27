@@ -45,6 +45,7 @@ public class AudioManager : MonoBehaviour
         masterVolume = PlayerPrefs.GetFloat("OverallVolume", 1f);
         sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 1f);
         musicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        Debug.Log("Loaded Music Volume: " + musicVolume);
 
         ApplyVolumes();
     }
@@ -99,7 +100,11 @@ public class AudioManager : MonoBehaviour
     {
         foreach (var source in musicSources)
         {
-            if (source != null) source.volume = musicVolume;
+            if (source != null)
+            {
+                source.volume = musicVolume;
+                Debug.Log("Applied Music Volume: " + musicVolume);
+            }
         }
     }
 
@@ -135,7 +140,8 @@ public class AudioManager : MonoBehaviour
             if (musicSource != null)
             {
                 musicSource.clip = clip;
-                musicSource.volume = musicVolume;
+                musicSource.volume = musicVolume; // Ensure it uses the saved volume
+                Debug.Log("Playing music with volume: " + musicVolume);
                 musicSource.loop = loop;
                 musicSource.Play();
             }
@@ -148,5 +154,11 @@ public class AudioManager : MonoBehaviour
         {
             Debug.LogWarning("Music clip not found: " + musicName);
         }
+    }
+
+    // Ensure volumes are applied when returning to the gameplay scene
+    private void OnLevelWasLoaded(int level)
+    {
+        ApplyVolumes();
     }
 }

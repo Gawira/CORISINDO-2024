@@ -26,7 +26,6 @@ public class AudioSettings : MonoBehaviour
         musicVolumeSlider.onValueChanged.AddListener(delegate { UpdateMusicVolume(); });
     }
 
-
     private void OnDisable()
     {
         overallVolumeSlider.onValueChanged.RemoveAllListeners();
@@ -34,26 +33,12 @@ public class AudioSettings : MonoBehaviour
         musicVolumeSlider.onValueChanged.RemoveAllListeners();
     }
 
-    private void LoadSettings()
-    {
-        overallVolumeSlider.value = PlayerPrefs.GetFloat("OverallVolume", 1f);
-        sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
-        musicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
-
-        UpdateOverallVolume();
-        UpdateSFXVolume();
-        UpdateMusicVolume();
-    }
-
     private void UpdateOverallVolume()
     {
         float volume = overallVolumeSlider.value;
         overallVolumeText.text = Mathf.RoundToInt(volume * 100).ToString();
         AudioManager.Instance.SetVolume(volume, AudioManager.AudioChannel.Master);
-        PlayerPrefs.SetFloat("OverallVolume", volume);
-        PlayerPrefs.Save();
     }
-
 
     private void UpdateSFXVolume()
     {
@@ -66,6 +51,7 @@ public class AudioSettings : MonoBehaviour
     {
         float volume = musicVolumeSlider.value;
         musicVolumeText.text = Mathf.RoundToInt(volume * 100).ToString();
+        Debug.Log("Updating Music Volume to: " + volume);
         AudioManager.Instance.SetVolume(volume, AudioManager.AudioChannel.Music);
     }
 }
