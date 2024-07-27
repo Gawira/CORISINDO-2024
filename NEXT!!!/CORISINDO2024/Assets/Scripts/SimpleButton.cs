@@ -209,7 +209,7 @@ public class SimpleButton : MonoBehaviour
             RobotController robotController = teleportedBot.GetComponent<RobotController>();
             if (robotController != null)
             {
-                if (UnityEngine.Random.value < 1f) // 20% chance to trigger yelling
+                if (UnityEngine.Random.value < 0.35f) // 50% chance to trigger yelling
                 {
                     robotController.TriggerYelling();
                     yield return new WaitUntil(() => robotController.HitCount >= 3);

@@ -67,7 +67,7 @@ public class GameValues : MonoBehaviour
 
     public void ResetTimer()
     {
-        timer = 30f;
+        timer = 360f;
     }
 
     private void CheckRobotStatus()
