@@ -29,33 +29,36 @@ public class DisplayValues : MonoBehaviour
     private IEnumerator DisplayValuesCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        dayText.text = "" + (gameValues.GetDay());
-        Debug.Log("Current Day: " + gameValues.GetDay());
+
+        // Display the current day, using PlayerPrefs to ensure correct count
+        int currentDay = PlayerPrefs.GetInt("Days1", 0); // Default to Day 1 if not set
+        dayText.text = "" + (currentDay + 1);
+        Debug.Log("Current Day: " + currentDay);
 
         yield return new WaitForSeconds(1f);
-        int savings;
-        if (gameValues.GetDay() == 1)
-        {
-            savings = gameValues.startMoney;
-        }
-        else
-        {
-            savings = PlayerPrefs.GetInt("TotalMoney", gameValues.startMoney);
-        }
+
+        // Load savings from PlayerPrefs
+        int savings = PlayerPrefs.GetInt("TotalMoney", gameValues.startMoney);
         savingsText.text = "" + savings.ToString("N0");
         Debug.Log("Current Savings: " + savings);
 
         yield return new WaitForSeconds(1f);
+
+        // Calculate and display salary
         int salary = gameValues.GetCorrectDecisions() * 50000;
         salaryText.text = "" + salary.ToString("N0");
         Debug.Log("Current Salary: " + salary);
 
         yield return new WaitForSeconds(1f);
+
+        // Calculate and display penalty
         int penalty = gameValues.GetMistakes() * 50000;
         mistakesText.text = "" + penalty.ToString("N0");
         Debug.Log("Current Penalty: " + penalty);
 
         yield return new WaitForSeconds(1f);
+
+        // Calculate and display total
         int total = savings + salary - penalty;
         totalText.text = "" + total.ToString("N0");
         Debug.Log("Total Savings: " + total);
@@ -63,5 +66,10 @@ public class DisplayValues : MonoBehaviour
         // Save the total for the next day
         PlayerPrefs.SetInt("TotalMoney", total);
         Debug.Log($"Saved Total Money for Next Day: {total}");
+
+        // Increment and save the day count for the next day
+        currentDay++;
+        PlayerPrefs.SetInt("Days1", currentDay);
+        Debug.Log($"Next Day Saved as: {currentDay}");
     }
 }

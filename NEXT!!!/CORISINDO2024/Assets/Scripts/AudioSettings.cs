@@ -29,7 +29,7 @@ public class AudioSettings : MonoBehaviour
     private void UpdateOverallVolume()
     {
         float volume = overallVolumeSlider.value;
-        overallVolumeText.text = Mathf.RoundToInt(volume * 100).ToString();
+        overallVolumeText.text = Mathf.RoundToInt(volume * 100).ToString(); 
         AudioManager.Instance.SetVolume(volume, AudioManager.AudioChannel.Master);
         PlayerPrefs.SetFloat("OverallVolume", volume);
     }

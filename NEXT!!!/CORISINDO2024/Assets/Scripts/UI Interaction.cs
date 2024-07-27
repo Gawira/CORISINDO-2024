@@ -12,9 +12,22 @@ public class UIInteraction : MonoBehaviour
 
     public GameObject audioSettingsPanel;  // Reference to the audio settings panel
 
+
+    public AudioSource audioSource;  // Reference to the AudioSource component
+    public AudioClip clickSound;  // Reference to the click sound effect
+
+    private void PlayClickSound()
+    {
+        if (audioSource != null && clickSound != null)
+        {
+            audioSource.PlayOneShot(clickSound);
+        }
+    }
+
     // Fungsi untuk menampilkan popup
     public void ShowPopup()
     {
+        PlayClickSound();
         popupHTP.SetActive(true);
         popupHTP1.SetActive(true);
         popupHTP2.SetActive(true);
@@ -23,6 +36,7 @@ public class UIInteraction : MonoBehaviour
 
     public void ShowPopupSetting()
     {
+        PlayClickSound();
         popupSetting.SetActive(true);
         popupSetting1.SetActive(true);
         popupSetting2.SetActive(true);
@@ -32,6 +46,7 @@ public class UIInteraction : MonoBehaviour
     // Fungsi untuk menyembunyikan popup
     public void HidePopup()
     {
+        PlayClickSound();
         popupHTP.SetActive(false);
         popupHTP1.SetActive(false);
         popupHTP2.SetActive(false);

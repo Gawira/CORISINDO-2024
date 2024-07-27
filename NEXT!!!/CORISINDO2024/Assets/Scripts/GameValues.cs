@@ -12,7 +12,7 @@ public class GameValues : MonoBehaviour
     private int money;
     private int mistakesCount = 0; // Track the number of mistakes
     private int correctDecisions = 0; // Track the number of correct decisions
-    private int day = 0; // Track the current day
+    public int day = 0; // Track the current day
     private bool robotActive = false; // Flag to track if a robot is currently active
     private bool transitionPending = false; // Flag to track if a scene transition is pending
 
@@ -33,6 +33,8 @@ public class GameValues : MonoBehaviour
 
     void Start()
     {
+        day = PlayerPrefs.GetInt("Days1"); // Default to Day 1 if not set, adjust to 0-based internally
+
         ResetTimer();
         if (day == 0)
         {
@@ -67,7 +69,7 @@ public class GameValues : MonoBehaviour
 
     public void ResetTimer()
     {
-        timer = 360f;
+        timer = 10f;
     }
 
     private void CheckRobotStatus()

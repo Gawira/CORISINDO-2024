@@ -8,6 +8,7 @@ public class SceneSwitcher : MonoBehaviour
     // Metode ini akan dipanggil saat tombol diklik
     public void SwitchToGameplay()
     {
+
         SceneManager.LoadScene(gameplaySceneName);
     }
 }
