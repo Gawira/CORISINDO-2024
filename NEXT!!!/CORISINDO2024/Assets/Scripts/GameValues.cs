@@ -6,16 +6,15 @@ public class GameValues : MonoBehaviour
     public static GameValues Instance { get; private set; }
 
     public string dayTransitionSceneName = "Day transision";
-    public int startingMoney = 200000;
+    public int startMoney = 200000;
 
     private float timer;
     private int money;
     private int mistakesCount = 0; // Track the number of mistakes
     private int correctDecisions = 0; // Track the number of correct decisions
-    private int day = 1; // Track the current day
+    private int day = 0; // Track the current day
     private bool robotActive = false; // Flag to track if a robot is currently active
     private bool transitionPending = false; // Flag to track if a scene transition is pending
-
 
     public bool RobotActive { get { return robotActive; } }
 
@@ -35,14 +34,15 @@ public class GameValues : MonoBehaviour
     void Start()
     {
         ResetTimer();
-        if (day == 1)
+        if (day == 0)
         {
-            money = startingMoney;
+            money = startMoney;
         }
         else
         {
-            money = PlayerPrefs.GetInt("TotalMoney", startingMoney);
+            money = PlayerPrefs.GetInt("TotalMoney", startMoney);
         }
+        Debug.Log($"Initial Money (Day {day}): {money}");
 
         // Attempt to spawn a bot at the start
         BotTeleporter botTeleporter = FindObjectOfType<BotTeleporter>();
@@ -57,7 +57,6 @@ public class GameValues : MonoBehaviour
         if (timer > 0)
         {
             timer -= Time.deltaTime;
-            Debug.Log("Timer: " + timer);
             if (timer <= 0)
             {
                 Debug.Log("Timer ended, checking robot status...");
@@ -68,7 +67,7 @@ public class GameValues : MonoBehaviour
 
     public void ResetTimer()
     {
-        timer = 360f;
+        timer = 30f;
     }
 
     private void CheckRobotStatus()
@@ -107,12 +106,12 @@ public class GameValues : MonoBehaviour
         }
     }
 
-
     public void ChangeScene()
     {
         Debug.Log("Changing scene to: " + dayTransitionSceneName);
         PlayerPrefs.SetInt("TotalMoney", money); // Save the total money
         day++;
+        Debug.Log($"Saving Total Money: {money} for Day: {day}");
         StartCoroutine(SceneTransition.Instance.FadeAndLoadScene(dayTransitionSceneName));
     }
 
@@ -124,16 +123,19 @@ public class GameValues : MonoBehaviour
     public void AddMoney(int amount)
     {
         money += amount;
+        Debug.Log($"Adding Money: {amount}, New Balance: {money}");
     }
 
     public void SubtractMoney(int amount)
     {
         money -= amount;
+        Debug.Log($"Subtracting Money: {amount}, New Balance: {money}");
     }
 
     public void AddMistake()
     {
         mistakesCount++;
+        Debug.Log($"Adding Mistake, Total Mistakes: {mistakesCount}, Money After Penalty: {money}");
     }
 
     public int GetMistakes()
@@ -144,6 +146,7 @@ public class GameValues : MonoBehaviour
     public void AddCorrectDecision()
     {
         correctDecisions++;
+        Debug.Log($"Adding Correct Decision, Total Correct Decisions: {correctDecisions}, Money After Addition: {money}");
     }
 
     public int GetCorrectDecisions()

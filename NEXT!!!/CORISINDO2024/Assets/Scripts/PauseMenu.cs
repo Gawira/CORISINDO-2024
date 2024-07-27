@@ -38,7 +38,7 @@ public class PauseMenu : MonoBehaviour
     public void LoadMainMenu()
     {
         Time.timeScale = 1f;  // Lanjutkan waktu sebelum kembali ke menu utama
-        SceneManager.LoadScene("MainMenu");  // Ganti "MainMenu" dengan nama scene menu utama Anda
+        SceneManager.LoadScene("Main menu 1");  // Ganti "MainMenu" dengan nama scene menu utama Anda
     }
 
     public void LoadSettings()

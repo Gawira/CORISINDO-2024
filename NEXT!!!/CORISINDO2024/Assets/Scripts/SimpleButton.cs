@@ -116,11 +116,9 @@ public class SimpleButton : MonoBehaviour
                     // Apply punishment if not already punished
                     hasPunishedUser = true; // Mark that punishment has been applied
                     StartCoroutine(HandleMistake());
-                    gameValues.AddMistake(); // Add mistake to GameValues
                 }
                 else
                 {
-                    gameValues.AddMoney(100000);
                     gameValues.AddCorrectDecision();
                     Debug.Log("Money Added. New Balance: " + gameValues.GetMoney());
                 }
@@ -148,6 +146,7 @@ public class SimpleButton : MonoBehaviour
             }
         }
     }
+
 
     private void TryOpenDoor()
     {
@@ -327,7 +326,7 @@ public class SimpleButton : MonoBehaviour
 
     public IEnumerator HandleMistake()
     {
-        gameValues.SubtractMoney(50000);
+        gameValues.AddMistake();
         Debug.Log("Money Subtracted. New Balance: " + gameValues.GetMoney());
         Debug.Log("Starting punishment video...");
         peringatan.SetActive(true);

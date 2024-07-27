@@ -6,7 +6,6 @@ public class RobotController : MonoBehaviour
     public Animator animator;
     public Transform targetPoint;
     public float walkSpeed = 2f;
-    private bool isWalking = false;
     private int hitCount = 0; // Counter for the number of hits
     private int robotID;
     private string category;
@@ -14,7 +13,6 @@ public class RobotController : MonoBehaviour
     private bool isYelling = false; // Flag for yelling state
     private bool hasBeenPunished = false; // Flag to check if the user has already been punished
     private bool isHitBackwardsFinished = false; // Flag to indicate if the "Hit Backwards" animation has finished
-    private bool buttonPressed = false; // Flag to check if the button has been pressed
 
     public delegate void DocumentGiveHandler();
     public event DocumentGiveHandler OnDocumentGive;
@@ -41,7 +39,6 @@ public class RobotController : MonoBehaviour
     {
         this.robotID = id;
         this.category = category;
-        // Optionally, update the robot's appearance or UI with the ID and category
         Debug.Log($"Robot {category} ID: {id}");
     }
 
@@ -57,12 +54,10 @@ public class RobotController : MonoBehaviour
 
     private IEnumerator PerformActions()
     {
-        // Reset the hasPunishedUser flag for the new robot
         simpleButton.hasPunishedUser = false;
 
         // Start walking
         animator.SetBool("Walk", true);
-        isWalking = true;
 
         // Move to the target point on the Z axis
         yield return MoveToPosition(new Vector3(targetPoint.position.x, transform.position.y, targetPoint.position.z));
@@ -116,41 +111,33 @@ public class RobotController : MonoBehaviour
 
     public void GotHit()
     {
-        // Check if the hit count is less than 3 before registering the hit
         if (hitCount >= 3)
         {
             return; // Do not register the hit if the count is 3 or more
         }
 
-        // Increment the hit counter
         hitCount++;
 
-        // Play the hit sound using the ObjectInteractor's AudioSource
         objectInteractor.PlayHitSound();
 
-        // Force transition to idle before restarting "Taking Hit" animation
         animator.Play("Idle", 0, 0);
         animator.Play("Taking Hit", 0, 0);
 
-        // If the bot has been hit 3 times, handle the logic for yelling or moving
         if (hitCount == 3)
         {
             if (isYelling && simpleButton.initialDecisionCorrect)
             {
-                // If the robot is yelling and the initial decision was correct, don't punish the user
                 MoveDocumentsBack();
                 StartCoroutine(PlayHitBackwardsAnimation());
             }
             else
             {
-                // Start the hit backwards animation immediately
                 StartCoroutine(PlayHitBackwardsAnimation());
                 MoveDocumentsBack();
 
-                // Apply punishment if not already punished
                 if (!simpleButton.hasPunishedUser)
                 {
-                    simpleButton.hasPunishedUser = true; // Mark that punishment has been applied
+                    simpleButton.hasPunishedUser = true;
                     StartCoroutine(simpleButton.HandleMistake());
                 }
             }
@@ -159,26 +146,23 @@ public class RobotController : MonoBehaviour
 
     private IEnumerator PlayHitBackwardsAnimation()
     {
-        // Immediately transition to "Hit Backwards" animation
         animator.Play("Hit Backwards", 0, 0);
         isHitBackwardsFinished = true;
 
-        // Wait for the "Hit Backwards" animation to finish
-        yield return new WaitForSeconds(4.6f); // Delay before cleanup
+        yield return new WaitForSeconds(4.6f);
 
-        // Perform the cleanup actions after the "Hit Backwards" animation finishes
-        if (this != null) // Check if the object is not destroyed
+        if (this != null)
         {
-            Destroy(gameObject); // Optionally destroy the bot after it moves to the left side
+            Destroy(gameObject);
 
-            // Reset button and lever states
             if (simpleButton != null)
             {
                 simpleButton.ResetButtonAndLever();
             }
         }
 
-        GameValues.Instance.RobotDestroyed(); // Notify that the robot has been destroyed
+        GameValues.Instance.RobotDestroyed();
+
     }
 
     private void MoveDocumentsBack()
@@ -197,7 +181,6 @@ public class RobotController : MonoBehaviour
 
     public void TriggerYelling()
     {
-        // Set the yelling flag and start the yelling animation
         isYelling = true;
         animator.SetBool("Yell", true);
         StartCoroutine(YellingLoop());
@@ -205,7 +188,6 @@ public class RobotController : MonoBehaviour
 
     public void StopYelling()
     {
-        // Reset the yelling flag and stop the yelling animation
         isYelling = false;
         animator.SetBool("Yell", false);
     }
@@ -224,7 +206,6 @@ public class RobotController : MonoBehaviour
         hasBeenPunished = true;
     }
 
-    // This method will be called by the animation event
     public void OnHitBackwardsFinished()
     {
         isHitBackwardsFinished = true;
@@ -232,6 +213,6 @@ public class RobotController : MonoBehaviour
 
     public void ButtonPressed()
     {
-        buttonPressed = true;
+        simpleButton.hasPunishedUser = false;
     }
 }

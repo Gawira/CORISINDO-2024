@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneSwitcher : MonoBehaviour
 {
-    public string gameplaySceneName = "SampleScene"; // Nama scene gameplay
+    public string gameplaySceneName = "Day1"; // Nama scene gameplay
 
     // Metode ini akan dipanggil saat tombol diklik
     public void SwitchToGameplay()

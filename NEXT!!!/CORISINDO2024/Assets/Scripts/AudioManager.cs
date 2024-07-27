@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Video;
 
 public class AudioManager : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class AudioManager : MonoBehaviour
     public List<AudioClip> sfxClips;
     public List<AudioSource> musicSources;
     public List<AudioClip> musicClips;
+    public VideoPlayer videoPlayer; // Reference to the VideoPlayer
 
     private float masterVolume = 1f;
     private float sfxVolume = 1f;
@@ -72,6 +74,10 @@ public class AudioManager : MonoBehaviour
     private void ApplyMasterVolume()
     {
         AudioListener.volume = masterVolume;
+        if (videoPlayer != null)
+        {
+            videoPlayer.SetDirectAudioVolume(0, masterVolume);
+        }
     }
 
     private void ApplySFXVolume()

@@ -18,8 +18,6 @@ public class CameraMovement : MonoBehaviour
 
     void Update()
     {
-
-
         // Gerakkan kamera
         if (movingLeft)
         {

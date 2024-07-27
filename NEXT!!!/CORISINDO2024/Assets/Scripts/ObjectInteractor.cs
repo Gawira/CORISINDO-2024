@@ -480,7 +480,7 @@ public class ObjectInteractor : MonoBehaviour
         Vector3 attackEndPos = new Vector3(attackStartPos.x, attackStartPos.y, attackStartPos.z + 0.5f); // Swing forward on the Z axis
         Quaternion attackEndRot = Quaternion.Euler(attackStartRot.eulerAngles.x + 80f, attackStartRot.eulerAngles.y - 40f, attackStartRot.eulerAngles.z);
 
-        int steps = 20; // Increase the number of steps for smoother animation
+        int steps = 10; // Increase the number of steps for smoother animation
 
         // Play the attack sound
         attackAudioSource.Play();
