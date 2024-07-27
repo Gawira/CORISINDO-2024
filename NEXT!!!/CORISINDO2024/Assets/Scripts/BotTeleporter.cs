@@ -16,8 +16,11 @@ public class BotTeleporter : MonoBehaviour
         availableBots.AddRange(robotInitializer.acceptedRobots);
         availableBots.AddRange(robotInitializer.rejectedRobots);
 
-        // Teleport a random bot at the start
-        TeleportRandomBot();
+        // Teleport a random bot at the start if the timer is still running
+        if (GameValues.Instance.GetRemainingTime() > 0)
+        {
+            TeleportRandomBot();
+        }
     }
 
     public void TeleportRandomBot()
@@ -52,6 +55,8 @@ public class BotTeleporter : MonoBehaviour
             robotController.enabled = true;
             Debug.Log($"Teleported Bot ID: {robotController.GetID()} to position: {botSpawner.position}");
         }
+        GameValues.Instance.RobotSpawned();
+
     }
 
     public GameObject GetTeleportedBot()
@@ -61,6 +66,9 @@ public class BotTeleporter : MonoBehaviour
 
     public void SpawnNewBot()
     {
-        TeleportRandomBot();
+        if (GameValues.Instance.GetRemainingTime() > 0)
+        {
+            TeleportRandomBot();
+        }
     }
 }

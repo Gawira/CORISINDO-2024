@@ -14,6 +14,8 @@ public class GameValues : MonoBehaviour
     private int correctDecisions = 0; // Track the number of correct decisions
     private int day = 1; // Track the current day
     private bool robotActive = false; // Flag to track if a robot is currently active
+    private bool transitionPending = false; // Flag to track if a scene transition is pending
+
 
     public bool RobotActive { get { return robotActive; } }
 
@@ -41,6 +43,13 @@ public class GameValues : MonoBehaviour
         {
             money = PlayerPrefs.GetInt("TotalMoney", startingMoney);
         }
+
+        // Attempt to spawn a bot at the start
+        BotTeleporter botTeleporter = FindObjectOfType<BotTeleporter>();
+        if (botTeleporter != null && timer > 0)
+        {
+            botTeleporter.SpawnNewBot();
+        }
     }
 
     void Update()
@@ -67,7 +76,11 @@ public class GameValues : MonoBehaviour
         if (!robotActive)
         {
             Debug.Log("No robot active, transitioning scene...");
-            StartCoroutine(SceneTransition.Instance.FadeAndLoadScene(dayTransitionSceneName));
+            ChangeScene();
+        }
+        else
+        {
+            transitionPending = true;
         }
     }
 
@@ -80,11 +93,20 @@ public class GameValues : MonoBehaviour
     {
         robotActive = false;
         Debug.Log("RobotDestroyed called");
-        if (timer <= 0)
+        if (transitionPending)
         {
-            CheckRobotStatus();
+            ChangeScene();
+        }
+        else if (timer > 0)
+        {
+            BotTeleporter botTeleporter = FindObjectOfType<BotTeleporter>();
+            if (botTeleporter != null)
+            {
+                botTeleporter.SpawnNewBot();
+            }
         }
     }
+
 
     public void ChangeScene()
     {
