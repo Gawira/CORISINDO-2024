@@ -24,18 +24,25 @@ public class AudioManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            foreach (var source in sfxSources)
+            {
+                DontDestroyOnLoad(source.gameObject);
+            }
+            foreach (var source in musicSources)
+            {
+                DontDestroyOnLoad(source.gameObject);
+            }
+            LoadVolumes();
         }
         else
         {
             Destroy(gameObject);
         }
-
-        LoadVolumes();
     }
 
     private void LoadVolumes()
     {
-        masterVolume = PlayerPrefs.GetFloat("MasterVolume", 1f);
+        masterVolume = PlayerPrefs.GetFloat("OverallVolume", 1f);
         sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 1f);
         musicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
 
@@ -84,7 +91,7 @@ public class AudioManager : MonoBehaviour
     {
         foreach (var source in sfxSources)
         {
-            source.volume = sfxVolume;
+            if (source != null) source.volume = sfxVolume;
         }
     }
 
@@ -92,7 +99,7 @@ public class AudioManager : MonoBehaviour
     {
         foreach (var source in musicSources)
         {
-            source.volume = musicVolume;
+            if (source != null) source.volume = musicVolume;
         }
     }
 
