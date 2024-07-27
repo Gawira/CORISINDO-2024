@@ -6,6 +6,7 @@ public class CameraSwitcher : MonoBehaviour
     public Camera mainCamera;
     public Camera topDownCamera;
     public float transitionDuration = 1f;
+    public GameObject audioListenerObject; // Add this field for the separate AudioListener
 
     private bool canRightClick = false;
     private bool isInTopDownView = false;
@@ -16,8 +17,10 @@ public class CameraSwitcher : MonoBehaviour
     {
         mainCamera.enabled = true;
         topDownCamera.enabled = false;
-        mainCamera.GetComponent<AudioListener>().enabled = true;
-        topDownCamera.GetComponent<AudioListener>().enabled = false;
+
+        // Ensure the AudioListener is enabled on the separate GameObject
+        audioListenerObject.GetComponent<AudioListener>().enabled = true;
+
         Debug.Log("Main camera enabled at start.");
     }
 
@@ -54,8 +57,6 @@ public class CameraSwitcher : MonoBehaviour
         toCamera.transform.rotation = startRotation;
         toCamera.enabled = true;
 
-        fromCamera.GetComponent<AudioListener>().enabled = false;
-
         isTransitioning = true;
         canUseInput = false;
 
@@ -76,7 +77,6 @@ public class CameraSwitcher : MonoBehaviour
         }
 
         fromCamera.enabled = false;
-        toCamera.GetComponent<AudioListener>().enabled = true;
 
         isInTopDownView = enableRightClick;
         canRightClick = enableRightClick;
