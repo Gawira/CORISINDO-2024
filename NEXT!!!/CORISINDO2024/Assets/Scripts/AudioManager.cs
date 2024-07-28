@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
@@ -13,10 +14,8 @@ public class AudioManager : MonoBehaviour
     public VideoPlayer videoPlayer; // Reference to the VideoPlayer
 
     private float masterVolume = 1f;
-    private float sfxVolume = 1f;
-    private float musicVolume = 1f;
 
-    public enum AudioChannel { Master, SFX, Music }
+    public enum AudioChannel { Master }
 
     private void Awake()
     {
@@ -33,6 +32,7 @@ public class AudioManager : MonoBehaviour
                 DontDestroyOnLoad(source.gameObject);
             }
             LoadVolumes();
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
@@ -43,17 +43,12 @@ public class AudioManager : MonoBehaviour
     private void LoadVolumes()
     {
         masterVolume = PlayerPrefs.GetFloat("OverallVolume", 1f);
-        sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 1f);
-        musicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
-
         ApplyVolumes();
     }
 
     private void ApplyVolumes()
     {
         SetVolume(masterVolume, AudioChannel.Master);
-        SetVolume(sfxVolume, AudioChannel.SFX);
-        SetVolume(musicVolume, AudioChannel.Music);
     }
 
     public void SetVolume(float volume, AudioChannel channel)
@@ -63,14 +58,6 @@ public class AudioManager : MonoBehaviour
             case AudioChannel.Master:
                 masterVolume = volume;
                 ApplyMasterVolume();
-                break;
-            case AudioChannel.SFX:
-                sfxVolume = volume;
-                ApplySFXVolume();
-                break;
-            case AudioChannel.Music:
-                musicVolume = volume;
-                ApplyMusicVolume();
                 break;
         }
 
@@ -87,22 +74,6 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private void ApplySFXVolume()
-    {
-        foreach (var source in sfxSources)
-        {
-            if (source != null) source.volume = sfxVolume;
-        }
-    }
-
-    private void ApplyMusicVolume()
-    {
-        foreach (var source in musicSources)
-        {
-            if (source != null) source.volume = musicVolume;
-        }
-    }
-
     public void PlaySFX(string sfxName)
     {
         AudioClip clip = sfxClips.Find(sfx => sfx.name == sfxName);
@@ -112,7 +83,7 @@ public class AudioManager : MonoBehaviour
             if (sfxSource != null)
             {
                 sfxSource.clip = clip;
-                sfxSource.volume = sfxVolume;
+                sfxSource.volume = masterVolume;
                 sfxSource.Play();
             }
             else
@@ -126,27 +97,46 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void PlayMusic(string musicName, bool loop = true)
+    public void PlayMusic(string musicName)
     {
-        AudioClip clip = musicClips.Find(music => music.name == musicName);
-        if (clip != null)
+        Debug.Log("PlayMusic called with: " + musicName); // Debug log
+        foreach (var source in musicSources)
         {
-            AudioSource musicSource = musicSources.Find(source => !source.isPlaying);
-            if (musicSource != null)
+            if (source.clip != null && source.clip.name == musicName)
             {
-                musicSource.clip = clip;
-                musicSource.volume = musicVolume;
-                musicSource.loop = loop;
-                musicSource.Play();
+                Debug.Log("Enabling and playing: " + source.clip.name); // Debug log
+                source.enabled = true;
+                if (!source.isPlaying)
+                {
+                    source.Play();
+                }
             }
             else
             {
-                Debug.LogWarning("No available music source to play: " + musicName);
+                Debug.Log("Disabling: " + (source.clip != null ? source.clip.name : "null")); // Debug log
+                source.enabled = false;
+                source.Stop();
             }
         }
-        else
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log("OnSceneLoaded called with: " + scene.name); // Debug log
+        switch (scene.name)
         {
-            Debug.LogWarning("Music clip not found: " + musicName);
+            case "Main menu FIX":
+                PlayMusic("mainmenu_theme");
+                break;
+            case "Day1 FIX":
+                PlayMusic("5 Minute version");
+                break;
+            case "Day transision":
+                PlayMusic("daytransition_theme");
+                break;
+            default:
+                Debug.LogWarning("No music found for scene: " + scene.name);
+                break;
         }
     }
 }
